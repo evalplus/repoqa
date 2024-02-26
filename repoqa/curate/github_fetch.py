@@ -17,6 +17,7 @@ class GitHubRepoMeta(TypedDict):
     repo_name: str
     repo_owner: str
     commit_sha: str
+    repo_size: int
 
 
 class GitHubDocument(GitHubRepoMeta):
@@ -69,12 +70,17 @@ def main(language: str = "python", stars: int = 10):
 
     lang_suffix = lang2suffix[language]
 
+    repo_sizes = []  # unit of 10KB
+
     with open(f"{language}-{datetime.now().isoformat()}.jsonl", "w") as f_out:
         repos = g.search_repositories(query)
         print("Total count", repos.totalCount)
-        # TODO: add more fine-grained filtering such as repo size limits
         # TODO: apply dependency analysis
         for repo in tqdm(repos, total=repos.totalCount):
+            # filter repos diversified over the size, every 10KB
+            if repo.size // 10 in repo_sizes:
+                continue
+            repo_sizes.append(repo.size // 10)
             git_tree = repo.get_git_tree(repo.default_branch, recursive=True)
             tree_iter = filter(
                 lambda item: item.type == "blob"
@@ -88,11 +94,12 @@ def main(language: str = "python", stars: int = 10):
                 if content.encoding != "base64":
                     continue
                 file_content = content.decoded_content.decode("utf-8")
-                timestamp = datetime.datetime.now().isoformat()
+                timestamp = datetime.now().isoformat()
                 data = GitHubDocument(
                     timestamp=timestamp,
                     repo_name=repo.name,
                     repo_owner=repo.owner.login,
+                    repo_size=repo.size,
                     commit_sha=git_tree.sha,
                     path=item.path,
                     content=file_content,
