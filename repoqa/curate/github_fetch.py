@@ -7,6 +7,7 @@ import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TypedDict
+from zoneinfo import ZoneInfo
 
 from fire import Fire
 from github import Auth, Github
@@ -81,6 +82,20 @@ def main(language: str = "python", stars: int = 10):
             if repo.size // 10 in repo_sizes:
                 continue
             repo_sizes.append(repo.size // 10)
+
+            # filter at least 100 commits have been made since 2023 Q4 (>= 2023-09-01).
+            commits = repo.get_commits()
+            if (
+                sum(
+                    True
+                    for commit in commits
+                    if commit.last_modified_datetime
+                    >= datetime(2023, 9, 1, tzinfo=ZoneInfo("UTC"))
+                )
+                < 100
+            ):
+                continue
+
             git_tree = repo.get_git_tree(repo.default_branch, recursive=True)
             tree_iter = filter(
                 lambda item: item.type == "blob"
