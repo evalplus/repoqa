@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import json
 import os
 from dataclasses import dataclass, field
@@ -52,6 +53,24 @@ lang2suffix = {
 
 
 def main(language: str = "python", stars: int = 10):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--repo-size-interval",
+        type=int,
+        default=10,
+        help="Repo size interval to diversify",
+    )
+    parser.add_argument(
+        "--commit-count", type=int, default=100, help="New commit count to filter repos"
+    )
+    parser.add_argument(
+        "--new-commit-since",
+        type=str,
+        default="2023-09-01",
+        help="Minimum new commit date",
+    )
+    args = parser.parse_args()
+
     token = os.getenv("GITHUB_TOKEN")
     assert token is not None, "Make a token at https://github.com/settings/tokens"
     auth = Auth.Token(token)
@@ -71,7 +90,7 @@ def main(language: str = "python", stars: int = 10):
 
     lang_suffix = lang2suffix[language]
 
-    repo_sizes = []  # unit of 10KB
+    repo_sizes = []
 
     with open(f"{language}-{datetime.now().isoformat()}.jsonl", "w") as f_out:
         repos = g.search_repositories(query)
@@ -81,27 +100,31 @@ def main(language: str = "python", stars: int = 10):
             # filter at least 100 commits have been made since 2023 Q4 (>= 2023-09-01).
             commits = repo.get_commits()
             if (
-                sum(
+                count_ := sum(
                     True
                     for commit in commits
                     if commit.last_modified_datetime
-                    >= datetime(2023, 9, 1, tzinfo=ZoneInfo("UTC"))
+                    >= datetime.strptime(args.new_commit_since, "%Y-%m-%d").replace(
+                        tzinfo=ZoneInfo("UTC")
+                    )
                 )
-                < 100
-            ):
+            ) < args.commit_count:
                 continue
 
+            # filter repos diversified over the size, every interval
             git_tree = repo.get_git_tree(repo.default_branch, recursive=True)
-            tree_iter = filter(
-                lambda item: item.type == "blob"
-                and any([item.path.endswith(suffix) for suffix in lang_suffix]),
-                tqdm(git_tree.tree, leave=False),
+            tree_iter = list(
+                filter(
+                    lambda item: item.type == "blob"
+                    and any([item.path.endswith(suffix) for suffix in lang_suffix]),
+                    tqdm(git_tree.tree, leave=False),
+                )
             )
-            # filter repos diversified over the size, every 10KB
             repo_size = int(sum(item.size / 1024 for item in tree_iter))
-            if repo_size // 10 in repo_sizes:
+            if repo_size // args.repo_size_interval in repo_sizes:
                 continue
-            repo_sizes.append(repo_size // 10)
+            repo_sizes.append(repo_size // args.repo_size_interval)
+
             for item in tree_iter:
                 # Fetch the content for each Python file
                 content = repo.get_contents(item.path)
