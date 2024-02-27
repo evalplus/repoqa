@@ -78,11 +78,6 @@ def main(language: str = "python", stars: int = 10):
         print("Total count", repos.totalCount)
         # TODO: apply dependency analysis
         for repo in tqdm(repos, total=repos.totalCount):
-            # filter repos diversified over the size, every 10KB
-            if repo.size // 10 in repo_sizes:
-                continue
-            repo_sizes.append(repo.size // 10)
-
             # filter at least 100 commits have been made since 2023 Q4 (>= 2023-09-01).
             commits = repo.get_commits()
             if (
@@ -102,6 +97,11 @@ def main(language: str = "python", stars: int = 10):
                 and any([item.path.endswith(suffix) for suffix in lang_suffix]),
                 tqdm(git_tree.tree, leave=False),
             )
+            # filter repos diversified over the size, every 10KB
+            repo_size = int(sum(item.size / 1024 for item in tree_iter))
+            if repo_size // 10 in repo_sizes:
+                continue
+            repo_sizes.append(repo_size // 10)
             for item in tree_iter:
                 # Fetch the content for each Python file
                 content = repo.get_contents(item.path)
