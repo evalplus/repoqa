@@ -90,7 +90,7 @@ def main(language: str = "python", stars: int = 10):
 
     lang_suffix = lang2suffix[language]
 
-    repo_sizes = []
+    cf_sizes = []
 
     with open(f"{language}-{datetime.now().isoformat()}.jsonl", "w") as f_out:
         repos = g.search_repositories(query)
@@ -120,10 +120,10 @@ def main(language: str = "python", stars: int = 10):
                     tqdm(git_tree.tree, leave=False),
                 )
             )
-            repo_size = int(sum(item.size / 1024 for item in tree_iter))
-            if repo_size // args.repo_size_interval in repo_sizes:
+            code_file_size = int(sum(item.size / 1024 for item in tree_iter))
+            if code_file_size // args.repo_size_interval in cf_sizes:
                 continue
-            repo_sizes.append(repo_size // args.repo_size_interval)
+            cf_sizes.append(code_file_size // args.repo_size_interval)
 
             for item in tree_iter:
                 # Fetch the content for each Python file
@@ -137,7 +137,7 @@ def main(language: str = "python", stars: int = 10):
                     timestamp=timestamp,
                     repo_name=repo.name,
                     repo_owner=repo.owner.login,
-                    repo_size=repo.size,
+                    repo_size=code_file_size,
                     commit_sha=git_tree.sha,
                     path=item.path,
                     content=file_content,
