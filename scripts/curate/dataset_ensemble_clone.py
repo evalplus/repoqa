@@ -10,7 +10,6 @@ r you do not have permission to view them.", "resource": "Search", "field": "q",
 
 import json
 from datetime import datetime
-from typing import TypedDict
 
 import git
 import tempdir
@@ -61,11 +60,11 @@ def main(
                     if entry.path.startswith(entrypoint) and any(
                         [entry.path.endswith(suffix) for suffix in lang_suffix]
                     ):
-                        files_to_include.append(entry.abspath)
+                        files_to_include.append((entry.path, entry.abspath))
 
                 repo["content"] = {}
-                for path in files_to_include:
-                    with open(path, "r") as f:
+                for path, abspath in files_to_include:
+                    with open(abspath, "r") as f:
                         repo["content"][path] = f.read()
 
     with open(target_path, "w") as f_out:
