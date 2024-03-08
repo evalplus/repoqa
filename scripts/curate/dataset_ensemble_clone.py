@@ -2,12 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-! Note: not fully usable. You might encounter:
-github.GithubException.GithubException: 422 {"message": "Validation Failed", "errors": [{"message": "The listed users and repositories cannot be searched either because the resources do not exist o
-r you do not have permission to view them.", "resource": "Search", "field": "q", "code": "invalid"}], "documentation_url": "https://docs.github.com/v3/search/"}
-"""
-
 import json
 from datetime import datetime
 
