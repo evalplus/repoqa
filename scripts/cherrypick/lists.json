@@ -63,7 +63,68 @@
     ],
     "go": [],
     "c++": [],
-    "java": [],
+    "java": [
+        {
+            "repo": "google/gson",
+            "commit_sha": "ee61e3f020351f0498dd3ff8f8386b96454a4dfe",
+            "entrypoint_path": "gson/src/main/java/com/google/gson",
+            "topic": "developer-tool"
+        },
+        {
+            "repo": "square/retrofit",
+            "commit_sha": "10014c2bb7bd5fd24cf6b5b680e6917ab9a7767b",
+            "entrypoint_path": "retrofit/src/main/java/retrofit2",
+            "topic": "web-client"
+        },
+        {
+            "repo": "karatelabs/karate",
+            "commit_sha": "a378ba4f9e5af11eca1794d0bd55c428c8491bd8",
+            "entrypoint_path": "karate-core/src/main/java/com/intuit/karate",
+            "topic": "testing"
+        },
+        {
+            "repo": "Password4j/password4",
+            "commit_sha": "ded2c066d53df8dfaa8892a2868e04c7af655775",
+            "entrypoint_path": "src/main/java/com/password4j",
+            "topic": "cryptography"
+        },
+        {
+            "repo": "GoogleContainerTools/jib",
+            "commit_sha": "2e9561664792f4b13f0db741ca94c996cbece949",
+            "entrypoint_path": "jib-core/src/main/java/com/google/cloud/tools/jib",
+            "topic": "build-tool"
+        },
+        {
+            "repo": "microsoft/gctoolkit",
+            "commit_sha": "1476fc128465991f2c531645c780d3ed7c865f2c",
+            "entrypoint_path": "parser/src/main/java",
+            "topic": "log-parser"
+        },
+        {
+            "repo": "palantir/palantir-java-format",
+            "commit_sha": "b3ef776d8fd7be6e5a53319f7f4a40b7ee0793a4",
+            "entrypoint_path": "palantir-java-format/src/main/java/com/palantir/javaformat",
+            "topic": "formatter"
+        },
+        {
+            "repo": "microsoft/mssql-jdbc",
+            "commit_sha": "eae6d7b33571c92029169b33378b2405e8df448a",
+            "entrypoint_path": "src/test/java/com/microsoft/sqlserver/jdbc",
+            "topic": "database"
+        },
+        {
+            "repo": "Netflix/zuul",
+            "commit_sha": "3276e6a841f3e47f4e30c1ce67360213595e7326",
+            "entrypoint_path": "zuul-core/src/main/java/com/netflix/zuul",
+            "topic": "security"
+        },
+        {
+            "repo": "apache/flink-ml",
+            "commit_sha": "f08f2756316c9fbd7fb7b7e39d140bfd3d959b2a",
+            "entrypoint_path": "flink-ml-core/src/main/java/org/apache/flink/ml",
+            "topic": "machine-learning"
+        }
+    ],
     "typescript": [],
     "php": [],
     "rust": []
