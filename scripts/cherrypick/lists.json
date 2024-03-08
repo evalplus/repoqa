@@ -2,61 +2,51 @@
     "python": [
         {
             "repo": "psf/black",
-            "commit_sha": "f03ee113c9f3dfeb477f2d4247bfb7de2e5f465c",
             "entrypoint_path": "src/black",
             "topic": "formatter"
         },
         {
             "repo": "python-poetry/poetry",
-            "commit_sha": "21ffd99274d299bd6d2b7b0cdd7ba273fdd941be",
             "entrypoint_path": "src/poetry",
             "topic": "package-manager"
         },
         {
             "repo": "locustio/locust",
-            "commit_sha": "6241e9cf0a5c296da98abfaeb9d66d0ad1db2390",
             "entrypoint_path": "locust",
             "topic": "testing"
         },
         {
             "repo": "pyg-team/pytorch_geometric",
-            "commit_sha": "af0f5f44d4dfa8accd898df3e8523d06b67940b0",
             "entrypoint_path": "torch_geometric",
             "topic": "deep-learning"
         },
         {
             "repo": "openai/openai-python",
-            "commit_sha": "e41abf7b7dbc1e744d167f748e55d4dedfc0dca7",
             "entrypoint_path": "src/openai",
             "topic": "api"
         },
         {
             "repo": "mlc-ai/mlc-llm",
-            "commit_sha": "068d5ea9ca556f2f7a9603537b4f966da12b11f6",
             "entrypoint_path": "mlc_llm",
             "topic": "deep-learning-deployment"
         },
         {
             "repo": "reactive-python/reactpy",
-            "commit_sha": "4307a09dfa75e6c1b10a285e5ae4bdf0323cd018",
             "entrypoint_path": "src/py/reactpy/reactpy",
             "topic": "frontend"
         },
         {
             "repo": "marshmallow-code/marshmallow",
-            "commit_sha": "b8149cec77d16357d11b08f86de3b13e6fe02fa0",
             "entrypoint_path": "src/marshmallow",
             "topic": "schema"
         },
         {
             "repo": "ethereum/web3.py",
-            "commit_sha": "257f464801d11431bf09132fb30bbeeb5937542e",
             "entrypoint_path": "web3",
             "topic": "web3"
         },
         {
             "repo": "Ciphey/Ciphey",
-            "commit_sha": "5dfbe9330070d4aefc997e5d2648155a136a3757",
             "entrypoint_path": "ciphey",
             "topic": "cryptography"
         }
