@@ -10,15 +10,7 @@ import tempdir
 from fire import Fire
 from tqdm.auto import tqdm
 
-lang2suffix = {
-    "python": [".py"],
-    "go": [".go"],
-    "c++": [".cpp", ".hpp", ".cc", ".hh", ".cxx", ".hxx", ".c", ".h"],
-    "java": [".java"],
-    "typescript": [".ts"],
-    "php": [".php"],
-    "rust": [".rs"],
-}
+from scripts.curate.utility import lang2suffix
 
 
 def main(

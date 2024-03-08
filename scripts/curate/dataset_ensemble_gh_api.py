@@ -18,6 +18,8 @@ from github import Auth, Github
 from github.Repository import Repository
 from tqdm.auto import tqdm
 
+from scripts.curate.utility import lang2suffix
+
 
 class GitHubRepoMeta(TypedDict):
     repo_name: str
@@ -30,17 +32,6 @@ class GitHubDocument(GitHubRepoMeta):
     timestamp: str
     path: str
     content: str
-
-
-lang2suffix = {
-    "python": [".py"],
-    "go": [".go"],
-    "c++": [".cpp", ".hpp", ".cc", ".hh", ".cxx", ".hxx", ".c", ".h"],
-    "java": [".java"],
-    "typescript": [".ts"],
-    "php": [".php"],
-    "rust": [".rs"],
-}
 
 
 def main(
