@@ -1,6 +1,7 @@
 # Customized
 .vscode/
 *.jsonl
+repoqa-*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
