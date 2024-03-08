@@ -1,5 +1,2 @@
-PyGithub
 fire
 tqdm
-tempdir
-GitPython
