@@ -83,7 +83,7 @@
             "topic": "testing"
         },
         {
-            "repo": "Password4j/password4",
+            "repo": "Password4j/password4j",
             "commit_sha": "ded2c066d53df8dfaa8892a2868e04c7af655775",
             "entrypoint_path": "src/main/java/com/password4j",
             "topic": "cryptography"
