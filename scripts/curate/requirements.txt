@@ -1,0 +1,6 @@
+PyGithub
+fire
+tqdm
+tempdir
+GitPython
+pydeps
