@@ -9,7 +9,6 @@ r you do not have permission to view them.", "resource": "Search", "field": "q",
 """
 
 import json
-import os
 from datetime import datetime
 from typing import TypedDict
 
@@ -17,20 +16,6 @@ import git
 import tempdir
 from fire import Fire
 from tqdm.auto import tqdm
-
-
-class GitHubRepoMeta(TypedDict):
-    repo_name: str
-    repo_owner: str
-    commit_sha: str
-    repo_size: int
-
-
-class GitHubDocument(GitHubRepoMeta):
-    timestamp: str
-    path: str
-    content: str
-
 
 lang2suffix = {
     "python": [".py"],
