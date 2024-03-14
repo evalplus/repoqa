@@ -62,7 +62,7 @@
                             <target>
                                 <!-- Assuming the finalName is set to 'yourAppName' -->
                                 <move file="${project.build.directory}/java-analysis-1.0-SNAPSHOT.jar"
-                                      tofile="${project.basedir}/lib/java-analysis-1.0-SNAPSHOT.jar"/>
+                                      tofile="${project.basedir}/java-lib/java-analysis-1.0-SNAPSHOT.jar"/>
                             </target>
                         </configuration>
                     </execution>
