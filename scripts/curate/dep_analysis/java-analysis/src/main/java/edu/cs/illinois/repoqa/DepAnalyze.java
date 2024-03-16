@@ -11,7 +11,7 @@ import java.util.List;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -89,8 +89,8 @@ public class DepAnalyze {
         }
 
         // check all identifiers in the current file
-        for (Name name : cu.findAll(Name.class)) {
-            String identifier = name.getIdentifier();
+        for (NameExpr name : cu.findAll(NameExpr.class)) {
+            String identifier = name.getNameAsString();
             if (siblingClassSimpleNameList.contains(identifier)) {
                 Path depPath = filePath.getParent().resolve(identifier + ".java");
                 if (depPath.toFile().exists()) {
