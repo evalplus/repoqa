@@ -113,9 +113,9 @@
             "topic": "database"
         },
         {
-            "repo": "Netflix/zuul",
-            "commit_sha": "3276e6a841f3e47f4e30c1ce67360213595e7326",
-            "entrypoint_path": "zuul-core/src/main/java",
+            "repo": "google/conscrypt",
+            "commit_sha": "74c3c1ab7fecf9e50097a77dcac6ff2c7afd2ccf",
+            "entrypoint_path": "common/src/main/java",
             "topic": "security"
         },
         {

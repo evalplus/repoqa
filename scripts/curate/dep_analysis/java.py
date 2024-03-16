@@ -27,9 +27,6 @@ def main(dataset_path: str):
     repos = lists["java"]
     for repo in tqdm(repos):
         repo_name = repo["repo"]
-        if repo_name == "Netflix/zuul":
-            print(f"Skipping {repo} as JavaParser fails to parse it.")
-            continue
         commit_sha = repo["commit_sha"]
         entrypoint = repo["entrypoint_path"]
         content = repo["content"]
