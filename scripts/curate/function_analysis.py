@@ -26,8 +26,6 @@ def find_function_definitions(repo_path):
         for suffix in ts_lang2suffix[language]:
             extension_map[suffix] = get_language(language)
 
-    print(extension_map)
-
     extracted_functions = []
 
     for root, dirs, files in os.walk(repo_path):
@@ -46,19 +44,41 @@ def find_function_definitions(repo_path):
                     query = language.query("""
                         (function_definition
                         name: (identifier) @function.def
-                        )
+                        body: (block) @function.block)
                     """)
 
                     captures = query.captures(tree.root_node)
-                    for capture in captures:
-                        function_name = capture[0].text.decode('utf8')
-                        line_number = capture[0].start_point[0] + 1
-                        extracted_functions.append({
-                            "function_name": function_name,
-                            "file_path": file_path,
-                            "line_number": line_number
-                        })
-    return extracted_functions
+                    if len(captures) == 0:
+                        continue
+
+                    if len(captures) > 1 and (captures[0][1] == "function.def" and captures[1][1] == "function.block"): # Code block directly follows function definition
+                        for capture_index in range(0, len(captures), 2):
+                            def_capture = captures[capture_index]
+                            block_capture = captures[capture_index + 1]
+                            function_name = def_capture[0].text.decode('utf8')
+                            start_line_number = def_capture[0].start_point[0] + 1
+                            block_end_line_number = block_capture[0].end_point[0] + 1
+                            extracted_functions.append({
+                                "function_name": function_name,
+                                "file_path": file_path,
+                                "start_line": start_line_number,
+                                "end_line": block_end_line_number
+                            })
+                    else:
+                        for capture in captures:
+                            function_name = capture[0].text.decode('utf8')
+                            line_number = capture[0].start_point[0] + 1
+                            extracted_functions.append({
+                                "function_name": function_name,
+                                "file_path": file_path,
+                                "start_line": line_number,
+                                "end_line": line_number
+                            })
+
+    fmt_functions = {}
+    for function in extracted_functions:
+        fmt_functions[f"{function['file_path']}:{function['function_name']}"] = (function['start_line'], function['end_line'])
+    return fmt_functions
     
 if __name__ == "__main__":
     print("Testing function analysis: ")
