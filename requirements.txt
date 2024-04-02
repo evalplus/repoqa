@@ -1,2 +1,5 @@
 fire
 tqdm
+tree_sitter
+tree_sitter_languages
+git
