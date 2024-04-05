@@ -9,6 +9,7 @@
   - `curate`: code for dataset curation
     - `dep_analysis`: dependency analysis for different programming languages
   - `cherrypick`: cherry-picked repositories for evaluation
+  - `demos`: demos to quickly use some utility functions such as requesting LLMs
 
 ## Making a dataset
 
