@@ -16,7 +16,7 @@ def main(model="deepseek-ai/deepseek-coder-6.7b-instruct", max_tokens=8 * 2**10)
 
     tstart = time.time()
     responses = client.completions.create(
-        model=model, prompt=prompt, n=1, max_tokens=max_tokens
+        model=model, prompt=prompt, n=1, max_tokens=max_tokens, temperature=0
     )
     print(f"Time taken: {time.time() - tstart:.1f}s")
     print("Finish reason:", responses.choices[0].finish_reason)
