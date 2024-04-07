@@ -127,5 +127,66 @@
     ],
     "typescript": [],
     "php": [],
-    "rust": []
+    "rust": [
+        {
+            "repo": "rust-bakery/nom",
+            "commit_sha": "e87c7da9fa2ddb943306369f6c6d9e914256edbc",
+            "entrypoint_path": "src",
+            "topic": "parser"
+        },
+        {
+            "repo": "helix-editor/helix",
+            "commit_sha": "e69292e5eb7b0f727fefa19cffec910718af31b3",
+            "entrypoint_path": "helix-core/src",
+            "topic": "code-editor"
+        },
+        {
+            "repo": "rust-lang/cargo",
+            "commit_sha": "5da28587846d6cb2694e5bb1db1b5ca327285bf7",
+            "entrypoint_path": "cargo/src",
+            "topic": "package-manager"
+        },
+        {
+            "repo": "cloudflare/pingora",
+            "commit_sha": "acee67f87020ef41267fe475bcc5cbed44782a06",
+            "entrypoint_path": "pingora-core/src",
+            "topic": "networking"
+        },
+        {
+            "repo": "huggingface/candle",
+            "commit_sha": "33c9b6655459bd1086574cef9ba8f2e72a8804c8",
+            "entrypoint_path": "candle-core/src",
+            "topic": "machine-learning"
+        },
+        {
+            "repo": "seanmonstar/warp",
+            "commit_sha": "ce8114b50cadedac089d496235fe9d18596f944e",
+            "entrypoint_path": "src",
+            "topic": "web-server"
+        },
+        {
+            "repo": "rust-lang/libc",
+            "commit_sha": "a0f5b4b21391252fe38b2df9310dc65e37b07d9f",
+            "entrypoint_path": "src",
+            "topic": "language-binding"
+        },
+        {
+            "repo": "tokio-rs/tracing",
+            "commit_sha": "908cc432a5994f6e17c8f36e13c217dc40085704",
+            "entrypoint_path": "tracing-core/src",
+            "topic": "application-analysis"
+        },
+        {
+            "repo": "AFLplusplus/LibAFL",
+            "commit_sha": "527b892c1ddcc83207faaa71591e7f33a1a806a7",
+            "entrypoint_path": "libafl/src",
+            "topic": "fuzzing"
+        },
+        {
+            "repo": "orhun/kmon",
+            "commit_sha": "56a8ba78688a909de9591809f9a5138e33df4a9e",
+            "entrypoint_path": "src",
+            "topic": "system-monitoring"
+        }
+    ]
 }
