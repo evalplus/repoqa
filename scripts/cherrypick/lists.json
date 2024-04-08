@@ -62,7 +62,68 @@
         }
     ],
     "go": [],
-    "c++": [],
+    "c++": [
+        {
+            "repo": "apache/brpc",
+            "commit_sha": "498c3e17954ea36a88e5561ffdffa298a7b48dcf",
+            "entrypoint_path": "src",
+            "topic": "rpc-framework"
+        },
+        {
+            "repo": "apache/logging-log4cxx",
+            "commit_sha": "502f5711809e7f48c215164e374a5df62821ed52",
+            "entrypoint_path": "src/main/cpp",
+            "topic": "logging"
+        },
+        {
+            "repo": "apache/kudu",
+            "commit_sha": "5a2c776dfb894310fc286f3ebe60d53c8a5e9341",
+            "entrypoint_path": "src/kudu",
+            "topic": "storage"
+        },
+        {
+            "repo": "sogou/workflow",
+            "commit_sha": "9abfe7125f5a5d947304136ea3f681d0ebbc2d53",
+            "entrypoint_path": "src",
+            "topic": "network"
+        },
+        {
+            "repo": "skypjack/uvw",
+            "commit_sha": "ba10b27646035594fc1dd9525dede8573b71a7d7",
+            "entrypoint_path": "src",
+            "topic": "network"
+        },
+        {
+            "repo": "idealvin/coost",
+            "commit_sha": "c3d07b39621a8db769f2ddc2e5a9cd3f85411da2",
+            "entrypoint_path": "src",
+            "topic": "commons"
+        },
+        {
+            "repo": "arvidn/libtorrent",
+            "commit_sha": "8a7aa8311387b8d530a2ec2a3eb5974fec5edb64",
+            "entrypoint_path": "src",
+            "topic": "network"
+        },
+        {
+            "repo": "David-Haim/concurrencpp",
+            "commit_sha": "7a88f5401e15e1b64acae70077e40df1a5a9f6bf",
+            "entrypoint_path": "source",
+            "topic": "concurrency"
+        },
+        {
+            "repo": "ClickHouse/clickhouse-cpp",
+            "commit_sha": "0fb483543b313a0979b4dbd130f834352a034ba8",
+            "entrypoint_path": "clickhouse",
+            "topic": "database"
+        },
+        {
+            "repo": "SOCI/soci",
+            "commit_sha": "8a5ed8731727cb1086fb0f341a97a7d60a926253",
+            "entrypoint_path": "src",
+            "topic": "database"
+        }
+    ],
     "java": [
         {
             "repo": "google/gson",
