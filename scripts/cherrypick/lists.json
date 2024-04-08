@@ -64,22 +64,10 @@
     "go": [],
     "c++": [
         {
-            "repo": "apache/brpc",
-            "commit_sha": "498c3e17954ea36a88e5561ffdffa298a7b48dcf",
-            "entrypoint_path": "src",
-            "topic": "rpc-framework"
-        },
-        {
             "repo": "apache/logging-log4cxx",
             "commit_sha": "502f5711809e7f48c215164e374a5df62821ed52",
             "entrypoint_path": "src/main/cpp",
             "topic": "logging"
-        },
-        {
-            "repo": "apache/kudu",
-            "commit_sha": "5a2c776dfb894310fc286f3ebe60d53c8a5e9341",
-            "entrypoint_path": "src/kudu",
-            "topic": "storage"
         },
         {
             "repo": "sogou/workflow",
@@ -100,12 +88,6 @@
             "topic": "commons"
         },
         {
-            "repo": "arvidn/libtorrent",
-            "commit_sha": "8a7aa8311387b8d530a2ec2a3eb5974fec5edb64",
-            "entrypoint_path": "src",
-            "topic": "network"
-        },
-        {
             "repo": "David-Haim/concurrencpp",
             "commit_sha": "7a88f5401e15e1b64acae70077e40df1a5a9f6bf",
             "entrypoint_path": "source",
@@ -118,10 +100,28 @@
             "topic": "database"
         },
         {
-            "repo": "SOCI/soci",
-            "commit_sha": "8a5ed8731727cb1086fb0f341a97a7d60a926253",
+            "repo": "polybar/polybar",
+            "commit_sha": "11b522c313f7b2b0a10063721ec8b0bf544de6f4",
             "entrypoint_path": "src",
-            "topic": "database"
+            "topic": "developer-tool"
+        },
+        {
+            "repo": "yhirose/cpp-httplib",
+            "commit_sha": "f44ab9b3da7bfc830c230d3fe2f50db7b818b66b",
+            "entrypoint_path": "example",
+            "topic": "http"
+        },
+        {
+            "repo": "drogonframework/drogon",
+            "commit_sha": "294035beb96f6d474d501c210a1b403b0b0dedb6",
+            "entrypoint_path": "lib/src",
+            "topic": "web-framework"
+        },
+        {
+            "repo": "sass/node-sass",
+            "commit_sha": "6081731aac89ce4612fe4839d4c6329539c0d8e1",
+            "entrypoint_path": "src",
+            "topic": "css-compiler"
         }
     ],
     "java": [
