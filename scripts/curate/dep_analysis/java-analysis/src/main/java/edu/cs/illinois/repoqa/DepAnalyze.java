@@ -4,12 +4,14 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -21,7 +23,7 @@ public class DepAnalyze {
     }
 
     public static void analyze(String repoPath, String entryPoint, String filePath) {
-        Path srcRootPath = Paths.get(repoPath, entryPoint).getParent().toAbsolutePath(); // src/main/java
+        Path srcRootPath = Paths.get(repoPath, entryPoint).toAbsolutePath(); // src/main/java
         CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
         combinedTypeSolver.add(new ReflectionTypeSolver());
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedTypeSolver);
@@ -33,6 +35,9 @@ public class DepAnalyze {
         depPaths.addAll(getImportDepPaths(cu, srcRootPath));
         depPaths.addAll(getSamePackageDepPaths(cu, Paths.get(filePath).toAbsolutePath()));
 
+        depPaths = new ArrayList<>(new HashSet<>(depPaths)); // remove duplicates
+        Collections.sort(depPaths);
+        depPaths.remove(Paths.get(repoPath)); // remove the current file from the dependencies
         depPaths.forEach(p -> System.out.println(Paths.get(repoPath).relativize(p)));
     }
 
@@ -84,8 +89,8 @@ public class DepAnalyze {
         }
 
         // check all identifiers in the current file
-        for (Name name : cu.findAll(Name.class)) {
-            String identifier = name.getIdentifier();
+        for (NameExpr name : cu.findAll(NameExpr.class)) {
+            String identifier = name.getNameAsString();
             if (siblingClassSimpleNameList.contains(identifier)) {
                 Path depPath = filePath.getParent().resolve(identifier + ".java");
                 if (depPath.toFile().exists()) {

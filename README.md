@@ -9,6 +9,7 @@
   - `curate`: code for dataset curation
     - `dep_analysis`: dependency analysis for different programming languages
   - `cherrypick`: cherry-picked repositories for evaluation
+  - `demos`: demos to quickly use some utility functions such as requesting LLMs
 
 ## Making a dataset
 
@@ -45,9 +46,15 @@ python scripts/curate/dep_analysis/python.py --dataset-path repoqa-{datetime}.js
 > **Output**: `--dataset-path` (inplace) by adding a `"dependency"` field (path to a list imported path) for each repo.
 
 
-### Step 4: Needle function collection
+### Step 4: Function collection with TreeSitter
 
-TBD.
+```shell
+python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
+```
+
+> [!Note]
+>
+> **Output**: `--dataset-path` (inplace) by adding a `"functions"` field (path to a list function information) for each repo.
 
 ### Step 5: QA annootation
 
