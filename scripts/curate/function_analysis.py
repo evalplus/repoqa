@@ -24,9 +24,9 @@ _cpp_name_parser = (
 
 
 # Annotate an incomplete repoqa dataset with function and class information
-def main(dataset: str, overwrite_analysis: bool = False):
-    assert dataset.endswith(".json"), "Dataset must be a JSON file, check README"
-    with open(dataset, "r") as f:
+def main(dataset_path: str, overwrite_analysis: bool = False):
+    assert dataset_path.endswith(".json"), "Dataset must be a JSON file, check README"
+    with open(dataset_path, "r") as f:
         lists = json.load(f)
 
     for lang, repos in lists.items():
@@ -65,7 +65,7 @@ def main(dataset: str, overwrite_analysis: bool = False):
             repo["functions"] = functions
 
     # update the dataset
-    with open(dataset, "w") as f_out:
+    with open(dataset_path, "w") as f_out:
         json.dump(lists, f_out)
 
 

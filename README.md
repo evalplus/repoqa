@@ -49,8 +49,12 @@ python scripts/curate/dep_analysis/python.py --dataset-path repoqa-{datetime}.js
 ### Step 4: Function collection with TreeSitter
 
 ```shell
-python scripts/curate/function_analysis.py --dataset repoqa-{datetime}.json
+python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
 ```
+
+> [!Note]
+>
+> **Output**: `--dataset-path` (inplace) by adding a `"functions"` field (path to a list function information) for each repo.
 
 ### Step 5: QA annootation
 
