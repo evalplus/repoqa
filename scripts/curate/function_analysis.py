@@ -23,6 +23,31 @@ _cpp_name_parser = (
 )
 
 
+def topological_sort(graph):
+    # Stack to store the topological order
+    stack = []
+    # Set to keep track of visited nodes
+    visited = set()
+
+    # Recursive function to process nodes
+    def dfs(node):
+        # Mark the current node as visited
+        visited.add(node)
+        # Recurse for all the vertices adjacent to this vertex
+        for neighbour in graph.get(node, []):
+            if neighbour not in visited:
+                dfs(neighbour)
+        # Push current vertex to stack which stores the result
+        stack.append(node)
+
+    # Call the recursive helper function to store the topological sort starting from all vertices one by one
+    for node in graph:
+        if node not in visited:
+            dfs(node)
+
+    return stack
+
+
 # Annotate an incomplete repoqa dataset with function and class information
 def main(dataset_path: str, overwrite_analysis: bool = False):
     assert dataset_path.endswith(".json"), "Dataset must be a JSON file, check README"
@@ -46,22 +71,35 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
             if not overwrite_analysis and repo.get("functions"):
                 continue
 
-            functions = {}  # path to a list of functions
-            for path, code in repo["content"].items():
-                tree = parser.parse(bytes(code, "utf8"))
+            if not repo.get("dependency"):
+                print(
+                    f"⚠️ Skipping {repo['repo']} ({lang}) as it does not have `dependency` -- do dependency analysis first"
+                )
+                continue
 
+            ordered_paths = topological_sort(repo["dependency"])
+            global_byte_idx = 0
+            functions = {}  # path to a list of functions
+            for path in ordered_paths:
+                code = repo["content"][path]
+                tree = parser.parse(bytes(code, "utf8"))
                 extracted_functions = []
                 for capture in fn_query.captures(tree.root_node):
                     node, _ = capture
-                    print(fn_name_parser(node))
                     extracted_functions.append(
                         {
                             "name": fn_name_parser(node),
                             "start_line": node.start_point[0] + 1,
                             "end_line": node.end_point[0] + 1,
+                            "start_byte": node.start_byte,
+                            "end_byte": node.end_byte,
+                            "global_start_byte": global_byte_idx + node.start_byte,
+                            "global_end_byte": global_byte_idx + node.end_byte,
                         }
                     )
                 functions[path] = extracted_functions
+                global_byte_idx += len(code)
+
             repo["functions"] = functions
 
     # update the dataset
