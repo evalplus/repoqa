@@ -3,103 +3,73 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import os
 
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
+from tqdm import tqdm
+from tree_sitter_languages import get_language, get_parser
 
-ts_lang2suffix = {  # Changes c++ to cpp
-    "python": [".py"],
-    "go": [".go"],
-    "cpp": [".cpp", ".hpp", ".cc", ".hh", ".cxx", ".hxx", ".c", ".h"],
-    "java": [".java"],
-    "typescript": [".ts"],
-    "php": [".php"],
-    "rust": [".rs"],
+FUNCTION_QUERY = {
+    "python": "(function_definition name: (_)) @fdef",
+    "java": "(method_declaration name: (_)) @fdef",
+    "typescript": "(function_declaration name: (_)) @fdef",
+    "rust": "(function_item name: (_)) @fdef",
+    "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
 }
 
+_default_name_parser = lambda node: node.child_by_field_name("name").text.decode()
+_cpp_name_parser = (
+    lambda node: node.child_by_field_name("declarator")
+    .child_by_field_name("declarator")
+    .text.decode()
+)
 
-def find_function_definitions(repo_path):
-    # Create a parser
-    parser = Parser()
 
-    # Supported languages and file extensions
-    extension_map = {}
-    for language in ts_lang2suffix:
-        for suffix in ts_lang2suffix[language]:
-            extension_map[suffix] = get_language(language)
+# Annotate an incomplete repoqa dataset with function and class information
+def main(dataset: str, overwrite_analysis: bool = False):
+    assert dataset.endswith(".json"), "Dataset must be a JSON file, check README"
+    with open(dataset, "r") as f:
+        lists = json.load(f)
 
-    extracted_functions = []
+    for lang, repos in lists.items():
+        assert (
+            lang in FUNCTION_QUERY
+        ), f"Unsupported language: {lang} -- supported: {FUNCTION_QUERY.keys()}"
 
-    for root, dirs, files in os.walk(repo_path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            _, file_extension = os.path.splitext(file)
+        fn_query_text = FUNCTION_QUERY[lang]
+        print(f"🔥 Querying {lang} functions with `{fn_query_text}`...")
 
-            if file_extension in extension_map:
-                language = extension_map[file_extension]
-                parser.set_language(language)
+        parser = get_parser(lang)
+        fn_query = get_language(lang).query(fn_query_text)
+        fn_name_parser = _cpp_name_parser if lang == "cpp" else _default_name_parser
 
-                with open(file_path, "r") as f:
-                    code = f.read()
-                    tree = parser.parse(bytes(code, "utf8"))
+        for repo in tqdm(repos):
+            # skip if the repo already has function information
+            if not overwrite_analysis and repo.get("functions"):
+                continue
 
-                    query = language.query(
-                        """
-                        (function_definition
-                        name: (identifier) @function.def
-                        body: (block) @function.block)
-                    """
+            functions = {}  # path to a list of functions
+            for path, code in repo["content"].items():
+                tree = parser.parse(bytes(code, "utf8"))
+
+                extracted_functions = []
+                for capture in fn_query.captures(tree.root_node):
+                    node, _ = capture
+                    print(fn_name_parser(node))
+                    extracted_functions.append(
+                        {
+                            "name": fn_name_parser(node),
+                            "start_line": node.start_point[0] + 1,
+                            "end_line": node.end_point[0] + 1,
+                        }
                     )
+                functions[path] = extracted_functions
+            repo["functions"] = functions
 
-                    captures = query.captures(tree.root_node)
-                    if len(captures) == 0:
-                        continue
-
-                    if len(captures) > 1 and (
-                        captures[0][1] == "function.def"
-                        and captures[1][1] == "function.block"
-                    ):  # Code block directly follows function definition
-                        for capture_index in range(0, len(captures), 2):
-                            def_capture = captures[capture_index]
-                            block_capture = captures[capture_index + 1]
-                            function_name = def_capture[0].text.decode("utf8")
-                            start_line_number = def_capture[0].start_point[0] + 1
-                            block_end_line_number = block_capture[0].end_point[0] + 1
-                            extracted_functions.append(
-                                {
-                                    "function_name": function_name,
-                                    "file_path": file_path,
-                                    "start_line": start_line_number,
-                                    "end_line": block_end_line_number,
-                                }
-                            )
-                    else:
-                        for capture in captures:
-                            function_name = capture[0].text.decode("utf8")
-                            line_number = capture[0].start_point[0] + 1
-                            extracted_functions.append(
-                                {
-                                    "function_name": function_name,
-                                    "file_path": file_path,
-                                    "start_line": line_number,
-                                    "end_line": line_number,
-                                }
-                            )
-
-    fmt_functions = {}
-    for function in extracted_functions:
-        fmt_functions[f"{function['file_path']}:{function['function_name']}"] = (
-            function["start_line"],
-            function["end_line"],
-        )
-    return fmt_functions
+    # update the dataset
+    with open(dataset, "w") as f_out:
+        json.dump(lists, f_out)
 
 
 if __name__ == "__main__":
-    print("Testing function analysis: ")
-    print(
-        json.dumps(
-            find_function_definitions("./../../repo/poetry/src/poetry/"), indent=4
-        )
-    )
+    from fire import Fire
+
+    Fire(main)
