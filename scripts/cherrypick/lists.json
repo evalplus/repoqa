@@ -61,8 +61,7 @@
             "topic": "cryptography"
         }
     ],
-    "go": [],
-    "c++": [],
+    "cpp": [],
     "java": [
         {
             "repo": "google/gson",
@@ -126,6 +125,5 @@
         }
     ],
     "typescript": [],
-    "php": [],
     "rust": []
 }
