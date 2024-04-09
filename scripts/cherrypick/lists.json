@@ -143,7 +143,7 @@
         {
             "repo": "rust-lang/cargo",
             "commit_sha": "5da28587846d6cb2694e5bb1db1b5ca327285bf7",
-            "entrypoint_path": "cargo/src",
+            "entrypoint_path": "src",
             "topic": "package-manager"
         },
         {
@@ -165,10 +165,10 @@
             "topic": "web-server"
         },
         {
-            "repo": "rust-lang/libc",
-            "commit_sha": "a0f5b4b21391252fe38b2df9310dc65e37b07d9f",
-            "entrypoint_path": "src",
-            "topic": "language-binding"
+            "repo": "serde-rs/serde",
+            "commit_sha": "6e38afff498d592af4ccac4cb669a86fc789207f",
+            "entrypoint_path": "serde/src",
+            "topic": "serialization"
         },
         {
             "repo": "tokio-rs/tracing",
