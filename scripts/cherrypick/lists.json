@@ -62,7 +62,7 @@
         }
     ],
     "go": [],
-    "c++": [
+    "cpp": [
         {
             "repo": "apache/logging-log4cxx",
             "commit_sha": "502f5711809e7f48c215164e374a5df62821ed52",
