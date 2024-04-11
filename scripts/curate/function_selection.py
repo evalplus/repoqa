@@ -14,8 +14,12 @@ def main(
     dataset_path: str,
     overwrite_analysis: bool = False,
     max_len: int = 2000,
+    num_bins: int = 25,
     max_fn_per_repo: int = 10,
 ):
+    assert (
+        num_bins >= max_fn_per_repo
+    ), "Number of bins must be greater than max functions per repo"
     assert dataset_path.endswith(".json"), "Dataset must be a JSON file, check README"
     with open(dataset_path, "r") as f:
         lists = json.load(f)
@@ -34,7 +38,10 @@ def main(
                 )
                 continue
 
+            repo_size_bytes = sum(len(content) for content in repo["content"].values())
+
             selected_bins = set()
+            bin_size = repo_size_bytes // num_bins
 
             function_names = Counter()
             for funcs in repo["functions"].values():
@@ -55,7 +62,7 @@ def main(
                         continue
 
                     # criteria 3: not in the same bin
-                    bin_idx = fn["global_start_byte"] // max_len
+                    bin_idx = fn["global_start_byte"] // bin_size
                     if bin_idx in selected_bins:
                         continue
 
