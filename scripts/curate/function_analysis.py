@@ -15,6 +15,17 @@ FUNCTION_QUERY = {
     "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
 }
 
+COMMENT_QUERY = {
+    "python": [
+        "(block (expression_statement (string) @docstring))",
+        "(comment) @comment",
+    ],
+    "java": ["(line_comment) @comment", "(block_comment) @comment"],
+    "cpp": ["(line_comment) @comment", "(block_comment) @comment"],
+    "rust": ["(line_comment) @comment", "(block_comment) @comment"],
+    "typescript": ["(line_comment) @comment", "(block_comment) @comment"],
+}
+
 _default_name_parser = lambda node: node.child_by_field_name("name").text.decode()
 _cpp_name_parser = (
     lambda node: node.child_by_field_name("declarator")
@@ -46,6 +57,19 @@ def topological_sort(graph):
             dfs(node)
 
     return stack
+
+
+def comment_analysis(code: bytes, language: str) -> float:
+    query_texts = COMMENT_QUERY[language]
+    parser = get_parser(language)
+    tree = parser.parse(code)
+    characters = 0
+    for query_text in query_texts:
+        comment_query = get_language(language).query(query_text)
+        for node, _ in comment_query.captures(tree.root_node):
+            comment_text = code[node.start_byte : node.end_byte]
+            characters += len(comment_text)
+    return characters / len(code)
 
 
 # Annotate an incomplete repoqa dataset with function and class information
@@ -82,10 +106,13 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
             functions = {}  # path to a list of functions
             for path in ordered_paths:
                 code = repo["content"][path]
-                tree = parser.parse(bytes(code, "utf8"))
+                code_bytes = bytes(code, "utf8")
+                tree = parser.parse(code_bytes)
                 extracted_functions = []
                 for capture in fn_query.captures(tree.root_node):
                     node, _ = capture
+                    function_content = code_bytes[node.start_byte : node.end_byte]
+                    code_ratio = comment_analysis(function_content, lang)
                     extracted_functions.append(
                         {
                             "name": fn_name_parser(node),
@@ -95,6 +122,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                             "end_byte": node.end_byte,
                             "global_start_byte": global_byte_idx + node.start_byte,
                             "global_end_byte": global_byte_idx + node.end_byte,
+                            "code_ratio": code_ratio,
                         }
                     )
                 functions[path] = extracted_functions
