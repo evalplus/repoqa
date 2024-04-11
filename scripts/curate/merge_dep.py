@@ -29,6 +29,7 @@ def main(dataset_path: str):
                 print(f"{lang} -- Repo {repo['repo']} not found in dep analysis data")
                 continue
             repo["dependency"] = repo2dep[repo["repo"]]
+            print(f"{lang} -- Repo {repo['repo']} has dependency added in the dataset")
 
     with open(dataset_path, "w") as f_out:
         json.dump(dataset, f_out)

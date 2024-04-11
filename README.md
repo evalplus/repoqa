@@ -51,6 +51,8 @@ python scripts/curate/dep_analysis/{language}.py  # python
 > [!Note]
 >
 > The `{language}.json` should be uploaded as a release.
+>
+> To fetch the release, go to `scripts/curate/dep_analysis/data` and run `gh release download dependency --pattern "*.json" --clobber`.
 
 
 ### Step 4: Merge step 2 and step 3
@@ -69,7 +71,10 @@ python scripts/curate/merge_dep.py --dataset-path repoqa-{datetime}.json
 ### Step 5: Function collection with TreeSitter
 
 ```shell
+# collect functions
 python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
+# select needles
+python scripts/curate/function_selection.py --dataset-path repoqa-{datetime}.json
 ```
 
 > [!Tip]

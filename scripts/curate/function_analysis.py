@@ -99,8 +99,10 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                     )
                 functions[path] = extracted_functions
                 global_byte_idx += len(code)
-
             repo["functions"] = functions
+            print(
+                f"🎉 Found {sum(len(v) for v in functions.values())} functions in {repo['repo']} ({lang})"
+            )
 
     # update the dataset
     with open(dataset_path, "w") as f_out:

@@ -26,7 +26,6 @@ def get_files_to_include(gh_repo, entrypoint, lang_suffix):
 def main(
     target_path: str = f"repoqa-{datetime.now().isoformat()}.json",
 ):
-
     # read /scripts/cherrypick/lists.json
     with open("scripts/cherrypick/lists.json") as f:
         lists = json.load(f)

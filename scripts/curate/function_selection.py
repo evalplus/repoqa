@@ -63,8 +63,9 @@ def main(
                     selected_bins |= {bin_idx}
                     needle_candidates.append((path, fn))
 
+            len_total_fn = sum(len(v) for v in repo["functions"].values())
             print(
-                f"Selected {len(needle_candidates)} needles from {len(repo['functions'])} functions in {repo['repo']} ({lang})"
+                f"🎉 Selected {len(needle_candidates)} needles from {len_total_fn} functions in {repo['repo']} ({lang})"
             )
             needles = []
             for path, fn in sample(
