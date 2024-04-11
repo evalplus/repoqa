@@ -41,7 +41,7 @@ python scripts/curate/dataset_ensemble_clone.py
 Check [scripts/curate/dep_analysis](scripts/curate/dep_analysis) for more information.
 
 ```shell
-python scripts/curate/dep_analysis/{language}.py --dataset-path repoqa-{datetime}.json  # python
+python scripts/curate/dep_analysis/{language}.py  # python
 ```
 
 > [!Tip]
