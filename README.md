@@ -11,16 +11,19 @@
   - `cherrypick`: cherry-picked repositories for evaluation
   - `demos`: demos to quickly use some utility functions such as requesting LLMs
 
+
 ## Making a dataset
+
 
 ### Step 1: Cherry-pick repositories
 
 See [scripts/cherrypick/README.md](cherrypick/README.md) for more information.
 
 
-> [!Note]
+> [!Tip]
 >
 > **Output**: Extend `scripts/cherrypick/lists.json` for a programming language.
+
 
 ### Step 2: Extract repo content
 
@@ -28,39 +31,59 @@ See [scripts/cherrypick/README.md](cherrypick/README.md) for more information.
 python scripts/curate/dataset_ensemble_clone.py
 ```
 
-> [!Note]
+> [!Tip]
 >
 > **Output**: `repoqa-{datetime}.json` by adding a `"content"` field (path to content) for each repo.
+
 
 ### Step 3: Dependency analysis
 
 Check [scripts/curate/dep_analysis](scripts/curate/dep_analysis) for more information.
 
 ```shell
-# python
-python scripts/curate/dep_analysis/python.py --dataset-path repoqa-{datetime}.json
+python scripts/curate/dep_analysis/{language}.py --dataset-path repoqa-{datetime}.json  # python
 ```
+
+> [!Tip]
+>
+> **Output**: `{language}.json` (e.g., `python.json`) with a list of items of `{"repo": ..., "commit_sha": ..., "dependency": ...}` field where the dependency is a map of path to imported paths.
 
 > [!Note]
 >
-> **Output**: `--dataset-path` (inplace) by adding a `"dependency"` field (path to a list imported path) for each repo.
+> The `{language}.json` should be uploaded as a release.
 
 
-### Step 4: Function collection with TreeSitter
+### Step 4: Merge step 2 and step 3
+
+```shell
+python scripts/curate/merge_dep.py --dataset-path repoqa-{datetime}.json
+```
+
+> [!Tip]
+>
+> **Input**: Download dependency files in to `scripts/curate/dep_analysis/data`.
+>
+> **Output**: Update `repoqa-{datetime}.json` by adding a `"dependency"` field for each repository.
+
+
+### Step 5: Function collection with TreeSitter
 
 ```shell
 python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
 ```
 
-> [!Note]
+> [!Tip]
 >
 > **Output**: `--dataset-path` (inplace) by adding a `"functions"` field (path to a list function information) for each repo.
 
-### Step 5: QA annootation
+
+### Step 6: QA annootation
 
 TBD.
 
+
 ## Development Beginner Notice
+
 
 ### After clone
 
@@ -70,6 +93,7 @@ pre-commit install
 pip install -r requirements.txt
 pip install -r scripts/curate/requirements.txt
 ```
+
 
 ### Import errors?
 
