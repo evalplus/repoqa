@@ -103,6 +103,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
 
             ordered_paths = topological_sort(repo["dependency"])
             global_byte_idx = 0
+            global_line_idx = 0
             functions = {}  # path to a list of functions
             for path in ordered_paths:
                 code = repo["content"][path]
@@ -116,10 +117,12 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                     extracted_functions.append(
                         {
                             "name": fn_name_parser(node),
-                            "start_line": node.start_point[0] + 1,
+                            "start_line": node.start_point[0],
                             "end_line": node.end_point[0] + 1,
                             "start_byte": node.start_byte,
                             "end_byte": node.end_byte,
+                            "global_start_line": global_line_idx + node.start_point[0],
+                            "global_end_line": global_line_idx + node.end_point[0] + 1,
                             "global_start_byte": global_byte_idx + node.start_byte,
                             "global_end_byte": global_byte_idx + node.end_byte,
                             "code_ratio": code_ratio,
@@ -127,6 +130,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                     )
                 functions[path] = extracted_functions
                 global_byte_idx += len(code)
+                global_line_idx += code.count("\n") + 1
             repo["functions"] = functions
             print(
                 f"🎉 Found {sum(len(v) for v in functions.values())} functions in {repo['repo']} ({lang})"
