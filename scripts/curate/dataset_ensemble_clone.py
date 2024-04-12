@@ -13,10 +13,19 @@ from tqdm.auto import tqdm
 from scripts.curate.utility import lang2suffix
 
 
+def get_files_to_include(gh_repo, entrypoint, lang_suffix):
+    files_to_include = []
+    for entry in gh_repo.commit().tree.traverse():
+        if entry.path.startswith(entrypoint) and any(
+            [entry.path.endswith(suffix) for suffix in lang_suffix]
+        ):
+            files_to_include.append((entry.path, entry.abspath))
+    return files_to_include
+
+
 def main(
     target_path: str = f"repoqa-{datetime.now().isoformat()}.json",
 ):
-
     # read /scripts/cherrypick/lists.json
     with open("scripts/cherrypick/lists.json") as f:
         lists = json.load(f)
@@ -41,12 +50,9 @@ def main(
                 )
                 gh_repo.git.checkout(commit_sha)
 
-                files_to_include = []
-                for entry in gh_repo.commit().tree.traverse():
-                    if entry.path.startswith(entrypoint) and any(
-                        [entry.path.endswith(suffix) for suffix in lang_suffix]
-                    ):
-                        files_to_include.append((entry.path, entry.abspath))
+                files_to_include = get_files_to_include(
+                    gh_repo, entrypoint, lang_suffix
+                )
 
                 repo["content"] = {}
                 for path, abspath in files_to_include:
