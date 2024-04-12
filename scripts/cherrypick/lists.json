@@ -70,28 +70,10 @@
             "topic": "logging"
         },
         {
-            "repo": "sogou/workflow",
-            "commit_sha": "9abfe7125f5a5d947304136ea3f681d0ebbc2d53",
-            "entrypoint_path": "src",
-            "topic": "network"
-        },
-        {
             "repo": "skypjack/uvw",
             "commit_sha": "ba10b27646035594fc1dd9525dede8573b71a7d7",
             "entrypoint_path": "src",
             "topic": "network"
-        },
-        {
-            "repo": "idealvin/coost",
-            "commit_sha": "c3d07b39621a8db769f2ddc2e5a9cd3f85411da2",
-            "entrypoint_path": "src",
-            "topic": "commons"
-        },
-        {
-            "repo": "David-Haim/concurrencpp",
-            "commit_sha": "7a88f5401e15e1b64acae70077e40df1a5a9f6bf",
-            "entrypoint_path": "source",
-            "topic": "concurrency"
         },
         {
             "repo": "ClickHouse/clickhouse-cpp",
@@ -106,12 +88,6 @@
             "topic": "developer-tool"
         },
         {
-            "repo": "yhirose/cpp-httplib",
-            "commit_sha": "f44ab9b3da7bfc830c230d3fe2f50db7b818b66b",
-            "entrypoint_path": "example",
-            "topic": "http"
-        },
-        {
             "repo": "drogonframework/drogon",
             "commit_sha": "294035beb96f6d474d501c210a1b403b0b0dedb6",
             "entrypoint_path": "lib/src",
@@ -122,6 +98,30 @@
             "commit_sha": "6081731aac89ce4612fe4839d4c6329539c0d8e1",
             "entrypoint_path": "src",
             "topic": "css-compiler"
+        },
+        {
+            "repo": "ml-explore/mlx",
+            "commit_sha": "91eba8e4856ba9a629408e18a9d0c1e79a22dab0",
+            "entrypoint_path": "mlx",
+            "topic": "machine-learning"
+        },
+        {
+            "repo": "polybar/polybar",
+            "commit_sha": "11b522c313f7b2b0a10063721ec8b0bf544de6f4",
+            "entrypoint_path": "src",
+            "topic": "developer-tool"
+        },
+        {
+            "repo": "scylladb/seastar",
+            "commit_sha": "b74a027c819ee5b9bfcee4f32edf8f37017bba12",
+            "entrypoint_path": "src",
+            "topic": "network"
+        },
+        {
+            "repo": "WasmEdge/WasmEdge",
+            "commit_sha": "a5e6f2d011776a1d997586b6e9af0ec01efa3642",
+            "entrypoint_path": "lib",
+            "topic": "wasm"
         }
     ],
     "java": [
