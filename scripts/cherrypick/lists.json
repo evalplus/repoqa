@@ -61,7 +61,69 @@
             "topic": "cryptography"
         }
     ],
-    "cpp": [],
+    "go": [],
+    "cpp": [
+        {
+            "repo": "apache/logging-log4cxx",
+            "commit_sha": "502f5711809e7f48c215164e374a5df62821ed52",
+            "entrypoint_path": "src/main/cpp",
+            "topic": "logging"
+        },
+        {
+            "repo": "skypjack/uvw",
+            "commit_sha": "ba10b27646035594fc1dd9525dede8573b71a7d7",
+            "entrypoint_path": "src",
+            "topic": "network"
+        },
+        {
+            "repo": "ClickHouse/clickhouse-cpp",
+            "commit_sha": "0fb483543b313a0979b4dbd130f834352a034ba8",
+            "entrypoint_path": "clickhouse",
+            "topic": "database"
+        },
+        {
+            "repo": "polybar/polybar",
+            "commit_sha": "11b522c313f7b2b0a10063721ec8b0bf544de6f4",
+            "entrypoint_path": "src",
+            "topic": "developer-tool"
+        },
+        {
+            "repo": "drogonframework/drogon",
+            "commit_sha": "294035beb96f6d474d501c210a1b403b0b0dedb6",
+            "entrypoint_path": "lib/src",
+            "topic": "web-framework"
+        },
+        {
+            "repo": "sass/node-sass",
+            "commit_sha": "6081731aac89ce4612fe4839d4c6329539c0d8e1",
+            "entrypoint_path": "src",
+            "topic": "css-compiler"
+        },
+        {
+            "repo": "ml-explore/mlx",
+            "commit_sha": "91eba8e4856ba9a629408e18a9d0c1e79a22dab0",
+            "entrypoint_path": "mlx",
+            "topic": "machine-learning"
+        },
+        {
+            "repo": "scylladb/seastar",
+            "commit_sha": "b74a027c819ee5b9bfcee4f32edf8f37017bba12",
+            "entrypoint_path": "src",
+            "topic": "network"
+        },
+        {
+            "repo": "WasmEdge/WasmEdge",
+            "commit_sha": "a5e6f2d011776a1d997586b6e9af0ec01efa3642",
+            "entrypoint_path": "lib",
+            "topic": "wasm"
+        },
+        {
+            "repo": "oatpp/oatpp",
+            "commit_sha": "17ef2a7f6c8a932498799b2a5ae5aab2869975c7",
+            "entrypoint_path": "src/oatpp",
+            "topic": "web-framework"
+        }
+    ],
     "java": [
         {
             "repo": "google/gson",
