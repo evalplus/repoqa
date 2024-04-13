@@ -243,10 +243,10 @@
             "topic": "fuzzing"
         },
         {
-            "repo": "orhun/kmon",
-            "commit_sha": "56a8ba78688a909de9591809f9a5138e33df4a9e",
-            "entrypoint_path": "src",
-            "topic": "system-monitoring"
+            "repo": "alacritty/alacritty",
+            "commit_sha": "d4f2f8577f763df059653dfab733dfe6ddc06913",
+            "entrypoint_path": "alacritty/src",
+            "topic": "terminal-emulator"
         }
     ]
 }
