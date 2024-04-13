@@ -168,9 +168,9 @@
             "topic": "api"
         },
         {
-            "repo": "web3/web3.js",
-            "commit_sha": "bfb4f6f1563ae42384370103eccc83d49080f3be",
-            "entrypoint_path": "packages/web3",
+            "repo": "MetaMask/metamask-sdk",
+            "commit_sha": "3552307ea5c5f3067810e335ddf1380dbf3782c1",
+            "entrypoint_path": "packages/sdk/src",
             "topic": "web3"
         },
         {
