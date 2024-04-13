@@ -180,10 +180,10 @@
             "topic": "3d"
         },
         {
-            "repo": "supabase/auth-helpers",
+            "repo": "firebase/firebase-admin-node",
             "commit_sha": "ef61542e04e87dc9c183013d0c027f5af9104376",
-            "entrypoint_path": "packages/shared/src",
-            "topic": "authentication"
+            "entrypoint_path": "src",
+            "topic": "baas"
         }
     ],
     "rust": [
