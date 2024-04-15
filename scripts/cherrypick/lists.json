@@ -147,7 +147,7 @@
             "repo": "graphql/graphql-js",
             "commit_sha": "8e9813f8c283d94da66fad6fd9562432846c17d4",
             "entrypoint_path": "src",
-            "topic": "web-client"
+            "topic": "api"
         },
         {
             "repo": "langchain-ai/langchainjs",
@@ -168,10 +168,10 @@
             "topic": "api"
         },
         {
-            "repo": "heyxyz/hey",
-            "commit_sha": "7c07d075161bbf71a75e5b1d55e6b96baf6de49e",
-            "entrypoint_path": "apps/web/src",
-            "topic": "web3"
+            "repo": "umami-software/umami",
+            "commit_sha": "be7f69fd5d3d711ba650a21013b73c7e17125f52",
+            "entrypoint_path": "src",
+            "topic": "analytics"
         },
         {
             "repo": "mrdoob/three.js",
