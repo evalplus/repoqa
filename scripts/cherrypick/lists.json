@@ -144,9 +144,9 @@
             "topic": "web-client"
         },
         {
-            "repo": "npm/cli",
-            "commit_sha": "ef381b1449c99e174437665aa767e7a9b60edf22",
-            "entrypoint_path": "lib",
+            "repo": "yarnpkg/berry",
+            "commit_sha": "c64644ae88ba42090ab9b87da0b09601d4218b0c",
+            "entrypoint_path": "packages",
             "topic": "package-manager"
         },
         {
@@ -168,9 +168,9 @@
             "topic": "api"
         },
         {
-            "repo": "MetaMask/metamask-sdk",
-            "commit_sha": "3552307ea5c5f3067810e335ddf1380dbf3782c1",
-            "entrypoint_path": "packages/sdk/src",
+            "repo": "heyxyz/hey",
+            "commit_sha": "7c07d075161bbf71a75e5b1d55e6b96baf6de49e",
+            "entrypoint_path": "apps/web/src",
             "topic": "web3"
         },
         {
