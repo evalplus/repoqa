@@ -186,7 +186,68 @@
             "topic": "machine-learning"
         }
     ],
-    "typescript": [],
+    "typescript": [
+        {
+            "repo": "xenova/transformers.js",
+            "commit_sha": "642743136efa3a481b2b96d3c2c550085540d844",
+            "entrypoint_path": "src",
+            "topic": "machine-learning"
+        },
+        {
+            "repo": "expressjs/express",
+            "commit_sha": "815f799310a5627c000d4a5156c1c958e4947b4c",
+            "entrypoint_path": "lib",
+            "topic": "web-server"
+        },
+        {
+            "repo": "axios/axios",
+            "commit_sha": "751133eb9ed794c6f6634c52f4fe116e33bf5f09",
+            "entrypoint_path": "lib",
+            "topic": "web-client"
+        },
+        {
+            "repo": "graphql/graphql-js",
+            "commit_sha": "8e9813f8c283d94da66fad6fd9562432846c17d4",
+            "entrypoint_path": "src",
+            "topic": "api"
+        },
+        {
+            "repo": "langchain-ai/langchainjs",
+            "commit_sha": "1f4a4498b66af5910d02dd4b9d68d99aa1350548",
+            "entrypoint_path": "langchain/src",
+            "topic": "machine-learning"
+        },
+        {
+            "repo": "chakra-ui/chakra-ui",
+            "commit_sha": "dfc81b4d4b3a667055e67fdac39cc17b27742f33",
+            "entrypoint_path": "packages/react",
+            "topic": "frontend"
+        },
+        {
+            "repo": "openai/openai-node",
+            "commit_sha": "018ac718ccf6a96798ef8f91906b3b652aa50919",
+            "entrypoint_path": "src",
+            "topic": "api"
+        },
+        {
+            "repo": "umami-software/umami",
+            "commit_sha": "be7f69fd5d3d711ba650a21013b73c7e17125f52",
+            "entrypoint_path": "src",
+            "topic": "analytics"
+        },
+        {
+            "repo": "mrdoob/three.js",
+            "commit_sha": "df4fb14945c896fdf628981dde31b31ef7e2e0cc",
+            "entrypoint_path": "src",
+            "topic": "3d"
+        },
+        {
+            "repo": "firebase/firebase-admin-node",
+            "commit_sha": "ef61542e04e87dc9c183013d0c027f5af9104376",
+            "entrypoint_path": "src",
+            "topic": "baas"
+        }
+    ],
     "rust": [
         {
             "repo": "rust-bakery/nom",
