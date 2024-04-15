@@ -144,10 +144,10 @@
             "topic": "web-client"
         },
         {
-            "repo": "yarnpkg/berry",
-            "commit_sha": "c64644ae88ba42090ab9b87da0b09601d4218b0c",
-            "entrypoint_path": "packages",
-            "topic": "package-manager"
+            "repo": "graphql/graphql-js",
+            "commit_sha": "8e9813f8c283d94da66fad6fd9562432846c17d4",
+            "entrypoint_path": "src",
+            "topic": "web-client"
         },
         {
             "repo": "langchain-ai/langchainjs",
