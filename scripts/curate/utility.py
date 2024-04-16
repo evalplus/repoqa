@@ -11,3 +11,22 @@ lang2suffix = {
     "php": [".php"],
     "rust": [".rs"],
 }
+
+COMMENT_QUERY = {
+    "python": [
+        "(block (expression_statement (string) @docstring))",
+        "(comment) @comment",
+    ],
+    "java": ["(line_comment) @comment", "(block_comment) @comment"],
+    "cpp": ["(line_comment) @comment", "(block_comment) @comment"],
+    "rust": ["(line_comment) @comment", "(block_comment) @comment"],
+    "typescript": ["(line_comment) @comment", "(block_comment) @comment"],
+}
+
+FUNCTION_QUERY = {
+    "python": "(function_definition name: (_)) @fdef",
+    "java": "(method_declaration name: (_)) @fdef",
+    "typescript": "(function_declaration name: (_)) @fdef",
+    "rust": "(function_item name: (_)) @fdef",
+    "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
+}
