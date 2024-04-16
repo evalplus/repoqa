@@ -5,7 +5,7 @@
 import json
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 import git
 import tempdir
@@ -37,11 +37,22 @@ def get_potential_include_dirs(temp_dir: str) -> List[Path]:
 
 
 def search_include(
-    temp_dir: str, cpp_file: Path, include: str, additional_libs: List[Path] = []
-):
+    entrypoint: str,
+    temp_dir: str,
+    cpp_file: Path,
+    include: str,
+    additional_libs: List[Path] = [],
+) -> Union[Path, None]:
     for possible_path in [cpp_file.parent] + additional_libs:
+        if not (entrypoint in str(possible_path)):
+            continue
         if (possible_path / include).exists():
-            return (possible_path / include).relative_to(Path(temp_dir)).as_posix()
+            return (
+                (possible_path / include)
+                .resolve()
+                .relative_to(Path(temp_dir))
+                .as_posix()
+            )
 
 
 def get_dependencies(temp_dir: str, entrypoint: str, cpp_file: Path):
@@ -60,6 +71,7 @@ def get_dependencies(temp_dir: str, entrypoint: str, cpp_file: Path):
             if (include.startswith('"') or include.startswith("<")) and "." in include:
                 include = include[1:-1]
                 rela_include = search_include(
+                    entrypoint,
                     temp_dir,
                     cpp_file,
                     include,

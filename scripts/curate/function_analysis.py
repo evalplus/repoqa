@@ -21,7 +21,7 @@ COMMENT_QUERY = {
         "(comment) @comment",
     ],
     "java": ["(line_comment) @comment", "(block_comment) @comment"],
-    "cpp": ["(line_comment) @comment", "(block_comment) @comment"],
+    "cpp": ["(comment) @comment"],
     "rust": ["(line_comment) @comment", "(block_comment) @comment"],
     "typescript": ["(line_comment) @comment", "(block_comment) @comment"],
 }
@@ -79,9 +79,6 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
         lists = json.load(f)
 
     for lang, repos in lists.items():
-        if lang != "python":  # FIXME
-            continue
-
         assert (
             lang in FUNCTION_QUERY
         ), f"Unsupported language: {lang} -- supported: {FUNCTION_QUERY.keys()}"
