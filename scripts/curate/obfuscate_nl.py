@@ -3,31 +3,8 @@ Make it harder for an LLM to predict code functionality based on comments or fun
 """
 import re
 from tree_sitter_languages import get_language, get_parser
-from utility import COMMENT_QUERY
+from utility import COMMENT_QUERY, FUNCTION_NAME_QUERY
 import json
-
-FUNCTION_NAME_QUERY = {
-    "python": """
-        ((function_definition
-          name: (identifier) @function_name))
-    """,
-    "java": """
-        (method_declaration
-          name: (identifier) @method_name)
-    """,
-    "typescript": """
-        (function_declaration
-          name: (identifier) @function_name)
-    """,
-    "rust": """
-        (function_item
-          name: (identifier) @function_name)
-    """,
-    "cpp": """
-        (function_definition
-          name: (identifier) @function_name)
-    """
-}
 
 def remove_comments(code, language):
     query_texts = COMMENT_QUERY[language]

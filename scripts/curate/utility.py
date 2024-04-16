@@ -30,3 +30,26 @@ FUNCTION_QUERY = {
     "rust": "(function_item name: (_)) @fdef",
     "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
 }
+
+FUNCTION_NAME_QUERY = {
+    "python": """
+        ((function_definition
+          name: (identifier) @function_name))
+    """,
+    "java": """
+        (method_declaration
+          name: (identifier) @method_name)
+    """,
+    "typescript": """
+        (function_declaration
+          name: (identifier) @function_name)
+    """,
+    "rust": """
+        (function_item
+          name: (identifier) @function_name)
+    """,
+    "cpp": """
+        (function_definition
+          name: (identifier) @function_name)
+    """
+}
