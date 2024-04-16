@@ -71,21 +71,28 @@ python scripts/curate/merge_dep.py --dataset-path repoqa-{datetime}.json
 ### Step 5: Function collection with TreeSitter
 
 ```shell
-# collect functions
+# collect functions (in-place)
 python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
-# select needles
-python scripts/curate/function_selection.py --dataset-path repoqa-{datetime}.json
+# select needles (in-place)
+python scripts/curate/needle_selection.py --dataset-path repoqa-{datetime}.json
 ```
 
 > [!Tip]
 >
-> **Output**: `--dataset-path` (inplace) by adding a `"functions"` field (path to a list function information) for each repo.
+> **Output**: `--dataset-path` (in-place) by adding a `"functions"` field (path to a list function information) for each repo.
 
 
-### Step 6: QA annootation
+### Step 6: Annotate each function with description to make a final dataset
 
-TBD.
+```shell
+python scripts/curate/needle_annotation.py --dataset-path repoqa-{datetime}.json
+```
 
+> [!Tip]
+>
+> You need to set `OPENAI_API_KEY` in the environment variable to run GPT-4. But you can enable `--use-batch-api` to save some costs.
+>
+> **Output**: `--output-desc-path` is a seperate json file specifying the function annotations with its sources.
 
 ## Development Beginner Notice
 

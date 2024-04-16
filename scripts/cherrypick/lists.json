@@ -61,7 +61,6 @@
             "topic": "cryptography"
         }
     ],
-    "go": [],
     "cpp": [
         {
             "repo": "apache/logging-log4cxx",
@@ -243,7 +242,7 @@
         },
         {
             "repo": "firebase/firebase-admin-node",
-            "commit_sha": "ef61542e04e87dc9c183013d0c027f5af9104376",
+            "commit_sha": "67151e620fbb7bdfc2a017e9a35d51eca035d824",
             "entrypoint_path": "src",
             "topic": "baas"
         }
