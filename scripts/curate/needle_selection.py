@@ -25,6 +25,9 @@ def main(
         lists = json.load(f)
 
     for lang, repos in lists.items():
+        if lang != "python":  # FIXME
+            continue
+
         print(f"🔥 Selecting needle functions for {lang}")
         # FIXME(@ganler): enable more dependency analysis!
         for repo in tqdm(repos):
