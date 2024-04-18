@@ -94,6 +94,18 @@ python scripts/curate/needle_annotation.py --dataset-path repoqa-{datetime}.json
 >
 > **Output**: `--output-desc-path` is a seperate json file specifying the function annotations with its sources.
 
+
+### Step 7: Merge needle description to the final dataset
+
+```shell
+python scripts/curate/needle_annotation.py --dataset-path repoqa-{datetime}.json --annotation-path {output-desc-path}.jsonl
+```
+
+> [!Tip]
+>
+> **Output**: `--dataset-path` (in-place) by adding a `"description"` field for each needle function.
+
+
 ## Development Beginner Notice
 
 
