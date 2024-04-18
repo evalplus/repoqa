@@ -70,12 +70,13 @@ def main(
     # a set of inference task to run; each item is a tuple of {repo, name, prompt}
     tasks = []
     for lang, repos in lists.items():
-        if lang != "python":  # FIXME
-            continue
-
         print(f"🔥 Selecting needle functions for {lang}")
-        # FIXME(@ganler): enable more dependency analysis!
         for repo in tqdm(repos):
+            if not repo.get("dependency"):
+                print(
+                    f"⚠️ Skipping {repo['repo']} ({lang}) as it does not have `dependency` -- do dependency analysis first"
+                )
+                continue
             ordered_paths = topological_sort(repo["dependency"])
             repo_lines = []
             for path in ordered_paths:
@@ -110,40 +111,38 @@ def main(
                 )
 
     client = openai.Client()
-    for task in tqdm(tasks):
-        print(f"🔥 Annotating {task['name']} in {task['repo']}")
-        output = make_auto_request(
-            client,
-            task["prompt"],
-            model="gpt-4-turbo",
-            max_tokens=2048,
-            temperature=0.2,
-            n=1,
-        )
-        annotation = output.choices[0].message.content
-        results.append(
-            {
+    with open(output_desc_path, "+a") as f_out:
+        for task in tqdm(tasks):
+            print(f"🔥 Annotating {task['name']} in {task['repo']}")
+            output = make_auto_request(
+                client,
+                task["prompt"],
+                model="gpt-4-turbo",
+                max_tokens=2048,
+                temperature=0.2,
+                n=1,
+            )
+            annotation = output.choices[0].message.content
+            result = {
                 "repo": task["repo"],
                 "name": task["name"],
                 "prompt": task["prompt"],
                 "raw_annotation": annotation,
                 "annotation": annotation.split(CAPTURE_HEAD)[-1].split(CAPTURE_TAIL)[0],
             }
-        )
-        if debug:
-            print("[PROMPT]", "-" * 80)
-            print(task["prompt"])
-            print("[ANNOTATION]", "-" * 80)
-            print(annotation)
-            print("-" * 80)
-            print("Enter to continue... or b to break:")
-            if input() == "b":
-                break
-
-    with open(output_desc_path, "w") as f_out:
-        for item in results:
-            json.dump(item, f_out)
+            json.dump(result, f_out)
             f_out.write("\n")
+            f_out.flush()
+
+            if debug:
+                print("[PROMPT]", "-" * 80)
+                print(task["prompt"])
+                print("[ANNOTATION]", "-" * 80)
+                print(annotation)
+                print("-" * 80)
+                print("Enter to continue... or b to break:")
+                if input() == "b":
+                    break
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ def main(
     dataset_path: str,
     overwrite_analysis: bool = False,
     max_len: int = 2000,
-    num_bins: int = 25,
+    num_bins: int = 64,
     max_fn_per_repo: int = 10,
 ):
     assert (
@@ -25,9 +25,6 @@ def main(
         lists = json.load(f)
 
     for lang, repos in lists.items():
-        if lang != "python":  # FIXME
-            continue
-
         print(f"🔥 Selecting needle functions for {lang}")
         # FIXME(@ganler): enable more dependency analysis!
         for repo in tqdm(repos):
