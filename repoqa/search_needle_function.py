@@ -158,6 +158,7 @@ def evaluate_model(
     code_context_size: int = 16 * 1024,
     max_new_tokens: int = 1024,
     result_dir: str = "results",
+    languages: List[str] = None,
 ):
     if backend is None:
         if base_url is not None:
@@ -191,6 +192,10 @@ def evaluate_model(
     # "needle_token_start", "needle_token_end", "code_context_ntokens"
     tasks = []
     for lang, repos in dataset.items():
+        if languages is not None and lang not in languages:
+            print(f"Skipping {lang} as it is not selected; selected: {languages}")
+            continue
+
         print(f"🔥 Preparing code context for {lang}...")
         for repo in tqdm(repos):
             # skip if the repo does not have needles
@@ -242,7 +247,11 @@ def evaluate_model(
     elif backend == "vllm":
         from repoqa.provider import VllmProvider
 
-        engine = VllmProvider(model, tensor_parallel_size=tensor_parallel_size)
+        engine = VllmProvider(
+            model,
+            tensor_parallel_size=tensor_parallel_size,
+            max_model_len=int(code_context_size * 1.5),
+        )
 
     with open(result_file, "a") as f_out:
         for task in tqdm(tasks):

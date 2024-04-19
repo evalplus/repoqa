@@ -11,9 +11,13 @@ from repoqa.provider.base import SYSTEM_MSG, BaseProvider
 
 
 class VllmProvider(BaseProvider):
-    def __init__(self, model, tensor_parallel_size):
+    def __init__(self, model, tensor_parallel_size, max_model_len):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
-        self.llm = LLM(model=model, tensor_parallel_size=tensor_parallel_size)
+        self.llm = LLM(
+            model=model,
+            tensor_parallel_size=tensor_parallel_size,
+            max_model_len=max_model_len,
+        )
 
     def generate_reply(
         self, question, n=1, max_tokens=1024, temperature=0
