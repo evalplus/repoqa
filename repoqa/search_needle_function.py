@@ -250,7 +250,7 @@ def evaluate_model(
         engine = VllmProvider(
             model,
             tensor_parallel_size=tensor_parallel_size,
-            max_model_len=int(code_context_size * 1.5),
+            max_model_len=int(code_context_size * 1.25),  # Magic number
         )
 
     with open(result_file, "a") as f_out:
