@@ -6,10 +6,9 @@ import json
 import os
 from typing import List, Tuple
 
-from tqdm import tqdm
 from transformers import AutoTokenizer
 
-from scripts.curate.function_analysis import topological_sort
+from repoqa.utility import CACHE_DIR, progress, topological_sort
 
 COMMENT_PREFIX = {
     "python": "#",
@@ -149,6 +148,10 @@ def make_task_id(lang, repo, needle_name):
     return f"{lang}::{repo}::{needle_name}"
 
 
+def make_cache_id(lang, repo, needle_name, code_context_size, position_ratio):
+    return f"{lang}::{repo}::{needle_name}::{code_context_size}::{position_ratio}"
+
+
 def evaluate_model(
     dataset_path: str,
     model: str,
@@ -159,6 +162,7 @@ def evaluate_model(
     max_new_tokens: int = 1024,
     result_dir: str = "results",
     languages: List[str] = None,
+    caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
 ):
     if backend is None:
         if base_url is not None:
@@ -182,6 +186,23 @@ def evaluate_model(
     else:
         results = []
 
+    # resume tasks from cache if any
+    # schema: {"cache_id": .., **task}
+    cache_file = os.path.join(CACHE_DIR, f"cache_ntoken_{code_context_size}_v1.jsonl")
+    os.makedirs(CACHE_DIR, exist_ok=True)
+
+    cache = {}
+    if caching:
+        print("🔥 Caching enabled")
+        if os.path.exists(cache_file):
+            with open(cache_file) as f:
+                cache = [json.loads(line) for line in f]
+                cache = {c["cache_id"]: c for c in cache}
+                # remove the cache_id field in c
+                for c in cache.values():
+                    c.pop("cache_id")
+            print(f"Resuming from cache: {cache_file} with {len(cache)} tasks")
+
     resumed_task_ids = {
         make_task_id(r["language"], r["repo"], r["name"]) for r in results
     }
@@ -197,44 +218,72 @@ def evaluate_model(
             continue
 
         print(f"🔥 Preparing code context for {lang}...")
-        for repo in tqdm(repos):
-            # skip if the repo does not have needles
-            if "needles" not in repo:
-                print(
-                    f"⚠️ Skipping {repo['repo']} ({lang}) as it does not have `needles` -- do needle analysis first"
-                )
-                continue
-
-            ordered_paths = topological_sort(repo["dependency"])
-            file_content_list = [
-                (path, repo["content"][path]) for path in ordered_paths
-            ]
-            for i, needle in enumerate(repo["needles"]):
-                task_id = make_task_id(lang, repo["repo"], needle["name"])
-                if task_id in resumed_task_ids:
-                    print(f"Skipping {task_id} as it is already in the results")
+        with progress(f"Processing {lang} context") as pbar:
+            for repo in pbar.track(repos):
+                # skip if the repo does not have needles
+                if "needles" not in repo:
+                    pbar.console.print(
+                        f"⚠️ Skipping {repo['repo']} ({lang}) as it does not have `needles` -- do needle analysis first"
+                    )
                     continue
 
-                position_ratio = (i + 0.5) / len(repo["needles"])
-                task = {
-                    "repo": repo["repo"],
-                    "name": needle["name"],
-                    "language": lang,
-                    "path": needle["path"],
-                    "position_ratio": position_ratio,
-                    "description": f"\nFunction Description:{needle['description']}\n",
-                    "instruction": INSTRUCTION,
-                    "template": TEMPLATE,
-                }
-                code_context_info = make_code_context(
-                    needle,
-                    file_content_list,
-                    position_ratio=position_ratio,
-                    code_context_size=code_context_size,
-                    language=lang,
-                )
-                task.update(code_context_info)
-                tasks.append(task)
+                ordered_paths = topological_sort(repo["dependency"])
+                file_content_list = [
+                    (path, repo["content"][path]) for path in ordered_paths
+                ]
+                for i, needle in enumerate(repo["needles"]):
+                    task_id = make_task_id(lang, repo["repo"], needle["name"])
+                    if task_id in resumed_task_ids:
+                        pbar.console.print(
+                            f"Skipping {task_id} as it is already in the results"
+                        )
+                        continue
+
+                    position_ratio = (i + 0.5) / len(repo["needles"])
+                    cache_id = make_cache_id(
+                        lang,
+                        repo["repo"],
+                        needle["name"],
+                        code_context_size,
+                        position_ratio,
+                    )
+                    if cache_id in cache:
+                        tasks.append(cache[cache_id])
+                        continue
+
+                    task = {
+                        "repo": repo["repo"],
+                        "name": needle["name"],
+                        "language": lang,
+                        "path": needle["path"],
+                        "position_ratio": position_ratio,
+                        "description": f"\nFunction Description:{needle['description']}\n",
+                        "instruction": INSTRUCTION,
+                        "template": TEMPLATE,
+                    }
+                    code_context_info = make_code_context(
+                        needle,
+                        file_content_list,
+                        position_ratio=position_ratio,
+                        code_context_size=code_context_size,
+                        language=lang,
+                    )
+                    task.update(code_context_info)
+                    tasks.append(task)
+
+                    if caching:  # cache
+                        with open(cache_file, "a") as f_out:
+                            f_out.write(
+                                json.dumps({"cache_id": cache_id, **task}) + "\n"
+                            )
+
+    # filter finished tasks again (in case a cache is used)
+    tasks = [
+        task
+        for task in tasks
+        if make_task_id(task["language"], task["repo"], task["name"])
+        not in resumed_task_ids
+    ]
 
     if len(tasks) == 0:
         print("No tasks to evaluate! Exiting...")
@@ -254,15 +303,19 @@ def evaluate_model(
         )
 
     with open(result_file, "a") as f_out:
-        for task in tqdm(tasks):
-            prompt = ""
-            for key in task["template"].split("\n"):
-                prompt += task[key]
+        with progress(f"Running {model}") as pbar:
+            for task in pbar.track(tasks):
+                pbar.console.print(
+                    f"Searching {task['name']} in {task['repo']} ({task['language']}) at possition {task['position_ratio']}"
+                )
+                prompt = ""
+                for key in task["template"].split("\n"):
+                    prompt += task[key]
 
-            replies = engine.generate_reply(prompt, n=1, max_tokens=max_new_tokens)
-            result = {**task, "output": replies}
-            f_out.write(json.dumps(result) + "\n")
-            results.append(result)
+                replies = engine.generate_reply(prompt, n=1, max_tokens=max_new_tokens)
+                result = {**task, "output": replies}
+                f_out.write(json.dumps(result) + "\n")
+                results.append(result)
 
     # TODO(@Tom): also directly run the result analysis
 

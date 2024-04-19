@@ -9,7 +9,7 @@ import json
 import matplotlib.pyplot as plt
 from transformers import AutoTokenizer
 
-from scripts.curate.function_analysis import topological_sort
+from repoqa.utility import topological_sort
 
 COMMENT_PREFIX = {
     "python": "#",
