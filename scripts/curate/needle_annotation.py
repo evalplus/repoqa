@@ -8,8 +8,8 @@ import os
 import openai
 from tqdm import tqdm
 
+from repoqa.provider.request.openai import make_auto_request
 from scripts.curate.function_analysis import topological_sort
-from scripts.curate.request.openai import make_auto_request
 
 CAPTURE_HEAD = "<desc_start>"
 CAPTURE_TAIL = "<desc_end>"

@@ -7,3 +7,5 @@ pydeps
 tree_sitter
 tree_sitter_languages
 pygraphviz
+matplotlib
+transformers

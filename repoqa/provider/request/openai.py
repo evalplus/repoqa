@@ -16,15 +16,9 @@ def make_request(
     max_tokens: int = 512,
     temperature: float = 1,
     n: int = 1,
-    **kwargs
+    system_msg="You are a helpful assistant good at coding.",
+    **kwargs,
 ) -> ChatCompletion:
-    system_msg = "You are a helpful assistant good at coding."
-    if (
-        kwargs.get("response_format", None)
-        and kwargs["response_format"]["type"] == "json_object"
-    ):
-        system_msg = "You are a helpful assistant designed to output JSON."
-
     return client.chat.completions.create(
         model=model,
         messages=[
@@ -34,7 +28,7 @@ def make_request(
         max_tokens=max_tokens,
         temperature=temperature,
         n=n,
-        **kwargs
+        **kwargs,
     )
 
 
