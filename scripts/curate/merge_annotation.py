@@ -40,7 +40,7 @@ def main(dataset_path: str, annotation_path: str):
                         f"⚠️ Missing annotation for {key} for lang {lang} -- skipping"
                     )
                     continue
-                needle["description"] = annotation
+                needle["description"] = annotation["annotation"]
 
     with open(dataset_path, "w") as f_out:
         json.dump(dataset, f_out)
