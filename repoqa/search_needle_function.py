@@ -154,6 +154,7 @@ def evaluate_model(
     model: str,
     base_url: str = None,
     backend: str = None,
+    tensor_parallel_size: int = 1,
     code_context_size: int = 16 * 1024,
     max_new_tokens: int = 1024,
     result_dir: str = "results",
@@ -241,7 +242,7 @@ def evaluate_model(
     elif backend == "vllm":
         from repoqa.provider import VllmProvider
 
-        engine = VllmProvider(model)
+        engine = VllmProvider(model, tensor_parallel_size=tensor_parallel_size)
 
     with open(result_file, "a") as f_out:
         for task in tqdm(tasks):
