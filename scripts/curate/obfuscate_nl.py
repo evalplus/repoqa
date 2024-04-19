@@ -5,6 +5,7 @@ import re
 from tree_sitter_languages import get_language, get_parser
 from utility import COMMENT_QUERY, FUNCTION_NAME_QUERY
 import json
+from tqdm import tqdm
 
 def remove_comments(code, language):
     query_texts = COMMENT_QUERY[language]
@@ -24,6 +25,7 @@ def remove_comments(code, language):
 def rename_functions(code, language, starting_index=0):
     func_name_query = get_language(language).query(FUNCTION_NAME_QUERY[language])
     parser = get_parser(language)
+    print(f"Running rename_functions: {code}, {language}")
     code_bytes = bytes(code, "utf8")
     tree = parser.parse(code_bytes)
     function_names = set()
@@ -38,14 +40,29 @@ def rename_functions(code, language, starting_index=0):
         current_index += 1
     return code, function_map
 
-def main():
-    test_file = open("function_selection.py", "r")
-    code = test_file.read()
-    test_file.close()
-    code = remove_comments(code, "python")
-    code, func_map = rename_functions(code, "python")
-    print(code)
-    print(json.dumps(func_map))
+def main(
+    dataset_filepath: str
+):
+    dataset_file = open(dataset_filepath, "r")
+    dataset = dataset_file.read()
+    dataset_file.close()
+    dataset = json.loads(dataset)
+    for lang in dataset:
+        print(f"Loading language: {lang}")
+        for repo_idx in range(len(dataset[lang])):
+            print(f"Loading repo: {dataset[lang][repo_idx]["repo"]}")
+            for file in tqdm(dataset[lang][repo_idx]["content"]):
+                content = dataset[lang][repo_idx]["content"][file]
+                if len(content.strip()) == 0:
+                    continue
+                dataset[lang][repo_idx]["content"][file] = remove_comments(content, lang)
+    path_no_ext = ".".join(dataset_filepath.split(".")[:-1])
+    
+    new_filepath = f"{path_no_ext}-no-comments.json"
+    gen_dataset_file = open(new_filepath, "w+")
+    gen_dataset_file.write(json.dumps(dataset))
+    gen_dataset_file.close()
+    print(f"Saved to {new_filepath}")
 
 if __name__ == "__main__":
     from fire import Fire

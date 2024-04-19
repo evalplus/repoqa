@@ -18,9 +18,9 @@ COMMENT_QUERY = {
         "(comment) @comment",
     ],
     "java": ["(line_comment) @comment", "(block_comment) @comment"],
-    "cpp": ["(line_comment) @comment", "(block_comment) @comment"],
+    "cpp": ["(comment) @comment"],
     "rust": ["(line_comment) @comment", "(block_comment) @comment"],
-    "typescript": ["(line_comment) @comment", "(block_comment) @comment"],
+    "typescript": ["(comment) @comment"],
 }
 
 FUNCTION_QUERY = {
