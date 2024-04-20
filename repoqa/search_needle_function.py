@@ -305,8 +305,12 @@ def evaluate_model(
     with open(result_file, "a") as f_out:
         with progress(f"Running {model}") as pbar:
             for task in pbar.track(tasks):
+                actual_position_ratio = (
+                    task["needle_token_start"] / task["code_context_ntokens"]
+                )
                 pbar.console.print(
-                    f"Searching {task['name']} in {task['repo']} ({task['language']}) at possition {task['position_ratio']}"
+                    f"Searching {task['name']} in {task['repo']} ({task['language']}) -- "
+                    f"position ratio: actual={actual_position_ratio:.2f}, expected={task['position_ratio']}"
                 )
                 prompt = ""
                 for key in task["template"].split("\n"):
