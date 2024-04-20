@@ -7,7 +7,8 @@ from typing import List
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 
-from repoqa.provider.base import SYSTEM_MSG, BaseProvider
+from repoqa.provider.base import BaseProvider
+from repoqa.provider.request import construct_message_list
 
 
 class VllmProvider(BaseProvider):
@@ -20,15 +21,11 @@ class VllmProvider(BaseProvider):
         )
 
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0
+        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
         prompt = self.tokenizer.apply_chat_template(
-            [
-                {"role": "system", "content": SYSTEM_MSG},
-                {"role": "user", "content": question},
-            ],
-            tokenize=False,
+            construct_message_list(question, system_msg), tokenize=False
         )
         vllm_outputs = self.llm.generate(
             [prompt],

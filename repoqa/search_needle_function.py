@@ -163,6 +163,7 @@ def evaluate_model(
     result_dir: str = "results",
     languages: List[str] = None,
     caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
+    system_message: str = "You are a helpful assistant good at code understanding.",
 ):
     if backend is None:
         if base_url is not None:
@@ -302,6 +303,14 @@ def evaluate_model(
             max_model_len=int(code_context_size * 1.25),  # Magic number
         )
 
+    if model == "mistralai/Mixtral-8x7B-Instruct-v0.1":
+        system_message = None
+        print(f"Warning: {model} does not support system message")
+
+    if not system_message:
+        print("🔥 System message is disabled")
+        system_message = None
+
     with open(result_file, "a") as f_out:
         with progress(f"Running {model}") as pbar:
             for task in pbar.track(tasks):
@@ -316,7 +325,9 @@ def evaluate_model(
                 for key in task["template"].split("\n"):
                     prompt += task[key]
 
-                replies = engine.generate_reply(prompt, n=1, max_tokens=max_new_tokens)
+                replies = engine.generate_reply(
+                    prompt, n=1, max_tokens=max_new_tokens, system_msg=system_message
+                )
                 result = {**task, "output": replies}
                 f_out.write(json.dumps(result) + "\n")
                 results.append(result)

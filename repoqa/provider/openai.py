@@ -7,7 +7,7 @@ from typing import List
 
 from openai import Client
 
-from repoqa.provider.base import SYSTEM_MSG, BaseProvider
+from repoqa.provider.base import BaseProvider
 from repoqa.provider.request.openai import make_auto_request
 
 
@@ -19,7 +19,7 @@ class OpenAIProvider(BaseProvider):
         )
 
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0
+        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
         replies = make_auto_request(
@@ -29,7 +29,7 @@ class OpenAIProvider(BaseProvider):
             temperature=temperature,
             n=n,
             max_tokens=max_tokens,
-            system_msg=SYSTEM_MSG,
+            system_msg=system_msg,
         )
 
         return [reply.message.content for reply in replies.choices]

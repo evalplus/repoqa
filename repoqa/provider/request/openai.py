@@ -8,6 +8,8 @@ import time
 import openai
 from openai.types.chat import ChatCompletion
 
+from repoqa.provider.request import construct_message_list
+
 
 def make_request(
     client: openai.Client,
@@ -21,10 +23,7 @@ def make_request(
 ) -> ChatCompletion:
     return client.chat.completions.create(
         model=model,
-        messages=[
-            {"role": "system", "content": system_msg},
-            {"role": "user", "content": message},
-        ],
+        messages=construct_message_list(message, system_message=system_msg),
         max_tokens=max_tokens,
         temperature=temperature,
         n=n,
