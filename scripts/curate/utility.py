@@ -7,7 +7,7 @@ lang2suffix = {
     "go": [".go"],
     "cpp": [".cpp", ".hpp", ".cc", ".hh", ".cxx", ".hxx", ".c", ".h"],
     "java": [".java"],
-    "typescript": [".ts"],
+    "typescript": [".ts", ".js"],
     "php": [".php"],
     "rust": [".rs"],
 }

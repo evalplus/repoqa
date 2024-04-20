@@ -205,10 +205,10 @@
             "topic": "web-client"
         },
         {
-            "repo": "graphql/graphql-js",
-            "commit_sha": "8e9813f8c283d94da66fad6fd9562432846c17d4",
+            "repo": "date-fns/date-fns",
+            "commit_sha": "5c1adb5369805ff552737bf8017dbe07f559b0c6",
             "entrypoint_path": "src",
-            "topic": "api"
+            "topic": "time-library"
         },
         {
             "repo": "langchain-ai/langchainjs",
@@ -217,9 +217,9 @@
             "topic": "machine-learning"
         },
         {
-            "repo": "chakra-ui/chakra-ui",
-            "commit_sha": "dfc81b4d4b3a667055e67fdac39cc17b27742f33",
-            "entrypoint_path": "packages/react",
+            "repo": "cheeriojs/cheerio",
+            "commit_sha": "d0b3c2f6b57cd1f835741175d463963266be0eef",
+            "entrypoint_path": "src",
             "topic": "frontend"
         },
         {

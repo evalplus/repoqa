@@ -9,3 +9,4 @@ tree_sitter_languages
 pygraphviz
 matplotlib
 transformers
+python-dep-tree

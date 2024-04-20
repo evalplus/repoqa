@@ -25,7 +25,7 @@ COMMENT_QUERY = {
     "java": ["(line_comment) @comment", "(block_comment) @comment"],
     "cpp": ["(comment) @comment"],
     "rust": ["(line_comment) @comment", "(block_comment) @comment"],
-    "typescript": ["(line_comment) @comment", "(block_comment) @comment"],
+    "typescript": ["(comment) @comment"],
 }
 
 _default_name_parser = lambda node: node.child_by_field_name("name").text.decode()
