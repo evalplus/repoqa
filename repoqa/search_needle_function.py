@@ -163,7 +163,7 @@ def evaluate_model(
     result_dir: str = "results",
     languages: List[str] = None,
     caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
-    system_message: str = "You are a helpful assistant good at code understanding.",
+    system_message: str = None,
 ):
     if backend is None:
         if base_url is not None:
@@ -178,7 +178,12 @@ def evaluate_model(
 
     # makedir if not exists
     os.makedirs(result_dir, exist_ok=True)
-    result_file = os.path.join(result_dir, f"{model.replace('/', '_slash_')}.jsonl")
+    context_size_dir = os.path.join(result_dir, f"ntoken_{code_context_size}")
+    os.makedirs(context_size_dir, exist_ok=True)
+    result_file = os.path.join(
+        context_size_dir,
+        f"{model.replace('/', '_slash_')}.jsonl",
+    )
 
     # resume from result_file
     if os.path.exists(result_file):
@@ -302,10 +307,6 @@ def evaluate_model(
             tensor_parallel_size=tensor_parallel_size,
             max_model_len=int(code_context_size * 1.25),  # Magic number
         )
-
-    if model == "mistralai/Mixtral-8x7B-Instruct-v0.1":
-        system_message = None
-        print(f"Warning: {model} does not support system message")
 
     if not system_message:
         print("🔥 System message is disabled")
