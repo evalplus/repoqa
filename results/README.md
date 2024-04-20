@@ -25,7 +25,5 @@ for item in "$(pwd)"/*; do
         echo "Zipped $dir_name to ${dir_name}.zip"
     fi
 done
-gh release create dev-results ./*.zip \
-     --title "Evaluated Results"      \
-     --notes "See attachment; some results might be incomplete."
+gh release upload dev-results ./*.zip --clobber
 ```
