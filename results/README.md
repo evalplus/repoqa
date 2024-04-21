@@ -21,7 +21,7 @@ for item in "$(pwd)"/*; do
     if [ -d "$item" ]; then
         # Get the base name of the directory
         dir_name=$(basename "$item")
-        zip -r "${dir_name}.zip" "$dir_name"
+        zip -FSr "${dir_name}.zip" "$dir_name"
         echo "Zipped $dir_name to ${dir_name}.zip"
     fi
 done

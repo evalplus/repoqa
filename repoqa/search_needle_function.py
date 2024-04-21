@@ -331,6 +331,7 @@ def evaluate_model(
                 )
                 result = {**task, "output": replies}
                 f_out.write(json.dumps(result) + "\n")
+                f_out.flush()
                 results.append(result)
 
     # TODO(@Tom): also directly run the result analysis
