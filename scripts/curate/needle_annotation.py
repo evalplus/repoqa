@@ -70,7 +70,7 @@ def main(
     # a set of inference task to run; each item is a tuple of {repo, name, prompt}
     tasks = []
     for lang, repos in lists.items():
-        print(f"🔥 Selecting needle functions for {lang}")
+        print(f"🔥 Collecting unannotated needle functions for {lang}")
         for repo in tqdm(repos):
             if not repo.get("dependency"):
                 print(
@@ -110,6 +110,7 @@ def main(
                     }
                 )
 
+    print(f"🔥 {len(tasks)} needle functions to be annotated in total")
     client = openai.Client()
     with open(output_desc_path, "+a") as f_out:
         for task in tqdm(tasks):
