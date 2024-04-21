@@ -1,127 +1,24 @@
 # RepoQA
 
-## DEV Structure
+## The Search-Needle-Function Task
 
-- `repo`: entrypoint for working repositories
-- `repoqa`: source code for the RepoQA evaluation library
-- `scripts`: scripts for maintaining the repository and other utilities
-  - `dev`: scripts for CI/CD and repository maintenance
-  - `curate`: code for dataset curation
-    - `dep_analysis`: dependency analysis for different programming languages
-  - `cherrypick`: cherry-picked repositories for evaluation
-  - `demos`: demos to quickly use some utility functions such as requesting LLMs
+### Inference with Various Backends
 
+#### vLLM
 
-## Making a dataset
-
-
-### Step 1: Cherry-pick repositories
-
-See [scripts/cherrypick/README.md](cherrypick/README.md) for more information.
-
-
-> [!Tip]
->
-> **Output**: Extend `scripts/cherrypick/lists.json` for a programming language.
-
-
-### Step 2: Extract repo content
-
-```shell
-python scripts/curate/dataset_ensemble_clone.py
+```bash
+repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --caching --backend vllm
 ```
 
-> [!Tip]
->
-> **Output**: `repoqa-{datetime}.json` by adding a `"content"` field (path to content) for each repo.
+#### OpenAI Compatible Servers
 
-
-### Step 3: Dependency analysis
-
-Check [scripts/curate/dep_analysis](scripts/curate/dep_analysis) for more information.
-
-```shell
-python scripts/curate/dep_analysis/{language}.py  # python
+```bash
+repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
+                              --model "gpt4-turbo" --caching --backend openai
 ```
 
-> [!Tip]
->
-> **Output**: `{language}.json` (e.g., `python.json`) with a list of items of `{"repo": ..., "commit_sha": ..., "dependency": ...}` field where the dependency is a map of path to imported paths.
+## Read More
 
-> [!Note]
->
-> The `{language}.json` should be uploaded as a release.
->
-> To fetch the release, go to `scripts/curate/dep_analysis/data` and run `gh release download dependency --pattern "*.json" --clobber`.
-
-
-### Step 4: Merge step 2 and step 3
-
-```shell
-python scripts/curate/merge_dep.py --dataset-path repoqa-{datetime}.json
-```
-
-> [!Tip]
->
-> **Input**: Download dependency files in to `scripts/curate/dep_analysis/data`.
->
-> **Output**: Update `repoqa-{datetime}.json` by adding a `"dependency"` field for each repository.
-
-
-### Step 5: Function collection with TreeSitter
-
-```shell
-# collect functions (in-place)
-python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
-# select needles (in-place)
-python scripts/curate/needle_selection.py --dataset-path repoqa-{datetime}.json
-```
-
-> [!Tip]
->
-> **Output**: `--dataset-path` (in-place) by adding a `"functions"` field (path to a list function information) for each repo.
-
-
-### Step 6: Annotate each function with description to make a final dataset
-
-```shell
-python scripts/curate/needle_annotation.py --dataset-path repoqa-{datetime}.json
-```
-
-> [!Tip]
->
-> You need to set `OPENAI_API_KEY` in the environment variable to run GPT-4. But you can enable `--use-batch-api` to save some costs.
->
-> **Output**: `--output-desc-path` is a seperate json file specifying the function annotations with its sources.
-
-
-### Step 7: Merge needle description to the final dataset
-
-```shell
-python scripts/curate/needle_annotation.py --dataset-path repoqa-{datetime}.json --annotation-path {output-desc-path}.jsonl
-```
-
-> [!Tip]
->
-> **Output**: `--dataset-path` (in-place) by adding a `"description"` field for each needle function.
-
-
-## Development Beginner Notice
-
-
-### After clone
-
-```shell
-pip install pre-commit
-pre-commit install
-pip install -r requirements.txt
-pip install -r scripts/curate/requirements.txt
-```
-
-
-### Import errors?
-
-```shell
-# Go to the root path of RepoQA
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-```
+* [RepoQA Homepage](https://evalplus.github.io/repoqa.html)
+* [RepoQA Dataset Curation](docs/curate_dataset.md)
+* [RepoQA Development Notes](docs/dev_note.md)
