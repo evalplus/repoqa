@@ -1,8 +1,44 @@
-# RepoQA
+# RepoQA: Evaluating Long-Context Code Understanding
 
-## The Search-Needle-Function Task
+<p align="center">
+    <a href="#-installation">🚀 Installation</a> •
+    <a href="#-search-needle-function">🏁 Search Needle Function</a> •
+    <a href="#-read-more">📚 Read More</a>
+</p>
 
-### Inference with Various Backends
+## 🚀 Installation
+
+```bash
+pip install repoqa
+```
+
+<details><summary>⏬ Install nightly version <i>:: click to expand ::</i></summary>
+<div>
+
+```bash
+pip install "git+https://github.com/evalplus/repoqa.git" --upgrade
+```
+
+</div>
+</details>
+
+<details><summary>⏬ Using RepoQA as a local repo? <i>:: click to expand ::</i></summary>
+<div>
+
+```bash
+git clone https://github.com/evalplus/repoqa.git
+cd repoqa
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+pip install -r requirements.txt
+```
+
+</div>
+</details>
+
+
+## 🏁 Search Needle Function
+
+### Inference
 
 #### vLLM
 
@@ -17,7 +53,29 @@ repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
                               --model "gpt4-turbo" --caching --backend openai
 ```
 
-## Read More
+<details><summary>⌨️ Command-line arguments <i>:: click to expand ::</i></summary>
+<div>
+
+* `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
+* `--backend`: `vllm` (default) or `openai`
+* `--base-url`: OpenAI API base URL
+* `--code-context-size` (default: 16384): Number of tokens (using DeepSeekCoder tokenizer) of code in the long context
+* `--caching` (default: False): if enabled, the tokenization and chuncking results will be cached to accelerate subsequent runs
+* `--max-new-tokens` (default: 1024): Maximum number of new tokens to generate
+* `--system-message` (default: None): if given, the model use a system message (but note some models don't support system message)
+* `--tensor-parallel-size`: Number of tensor parallelism (only for vLLM)
+* `--languages` (default: None): List of languages to evaluate (None means all)
+* `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
+
+</div>
+</details>
+
+### Compute Scores
+
+TBD
+
+
+## 📚 Read More
 
 * [RepoQA Homepage](https://evalplus.github.io/repoqa.html)
 * [RepoQA Dataset Curation](docs/curate_dataset.md)
