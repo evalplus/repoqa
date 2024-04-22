@@ -1,6 +1,0 @@
-# We mount the dataset locally here but we don't upload them to github
-# THOUGHT: maybe we can use evaluation repos as submodules. 
-*
-
-# Exceptions
-!.gitignore
