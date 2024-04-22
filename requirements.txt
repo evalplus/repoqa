@@ -1,6 +1,6 @@
 fire
-tqdm
 openai
 nltk
 appdirs
 rich
+vllm
