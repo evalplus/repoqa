@@ -7,26 +7,7 @@ import json
 from tqdm import tqdm
 from tree_sitter_languages import get_language, get_parser
 
-from repoqa.utility import topological_sort
-
-FUNCTION_QUERY = {
-    "python": "(function_definition name: (_)) @fdef",
-    "java": "(method_declaration name: (_)) @fdef",
-    "typescript": "(function_declaration name: (_)) @fdef",
-    "rust": "(function_item name: (_)) @fdef",
-    "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
-}
-
-COMMENT_QUERY = {
-    "python": [
-        "(block (expression_statement (string) @docstring))",
-        "(comment) @comment",
-    ],
-    "java": ["(line_comment) @comment", "(block_comment) @comment"],
-    "cpp": ["(comment) @comment"],
-    "rust": ["(line_comment) @comment", "(block_comment) @comment"],
-    "typescript": ["(comment) @comment"],
-}
+from repoqa.utility import COMMENT_QUERY, FUNCTION_QUERY, topological_sort
 
 _default_name_parser = lambda node: node.child_by_field_name("name").text.decode()
 _cpp_name_parser = (

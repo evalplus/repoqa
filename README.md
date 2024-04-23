@@ -53,26 +53,38 @@ repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
                               --model "gpt4-turbo" --caching --backend openai
 ```
 
-<details><summary>⌨️ Command-line arguments <i>:: click to expand ::</i></summary>
-<div>
+#### Usage
 
-* `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
-* `--backend`: `vllm` (default) or `openai`
-* `--base-url`: OpenAI API base URL
-* `--code-context-size` (default: 16384): Number of tokens (using DeepSeekCoder tokenizer) of code in the long context
-* `--caching` (default: False): if enabled, the tokenization and chuncking results will be cached to accelerate subsequent runs
-* `--max-new-tokens` (default: 1024): Maximum number of new tokens to generate
-* `--system-message` (default: None): if given, the model use a system message (but note some models don't support system message)
-* `--tensor-parallel-size`: Number of tensor parallelism (only for vLLM)
-* `--languages` (default: None): List of languages to evaluate (None means all)
-* `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
-
-</div>
-</details>
+> [!Tip]
+>
+> * **Input**:
+>   * `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
+>   * `--backend`: `vllm` (default) or `openai`
+>   * `--base-url`: OpenAI API base URL
+>   * `--code-context-size` (default: 16384): Number of tokens (using DeepSeekCoder tokenizer) of code in the long context
+>   * `--caching` (default: False): if enabled, the tokenization and chuncking results will be cached to accelerate subsequent runs
+>   * `--max-new-tokens` (default: 1024): Maximum number of new tokens to generate
+>   * `--system-message` (default: None): if given, the model use a system message (but note some models don't support system message)
+>   * `--tensor-parallel-size`: Number of tensor parallelism (only for vLLM)
+>   * `--languages` (default: None): List of languages to evaluate (None means all)
+>   * `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
+> * **Output**:
+>   * `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
+>   * `results/ntoken_{code-context-size}/{model}-SCORE.jsonl`: Evaluation scores (also see [Compute Scores](#compute-scores))
 
 ### Compute Scores
 
-TBD
+By default, the `repoqa.search_needle_function` command will also compute scores after producing model outputs.
+However, you can also compute scores separately using the following command:
+
+```shell
+repoqa.compute_score --model-output-path={model-output}.jsonl
+```
+
+> [!Tip]
+>
+> * **Input**: Path to the model generated outputs.
+> * **Output**: The evaluation scores would be stored in `{model-output}-SCORES.jsonl`
 
 
 ## 📚 Read More

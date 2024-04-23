@@ -10,6 +10,25 @@ from rich.progress import (
     TimeElapsedColumn,
 )
 
+FUNCTION_QUERY = {
+    "python": "(function_definition name: (_)) @fdef",
+    "java": "(method_declaration name: (_)) @fdef",
+    "typescript": "(function_declaration name: (_)) @fdef",
+    "rust": "(function_item name: (_)) @fdef",
+    "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
+}
+
+COMMENT_QUERY = {
+    "python": [
+        "(block (expression_statement (string) @docstring))",
+        "(comment) @comment",
+    ],
+    "java": ["(line_comment) @comment", "(block_comment) @comment"],
+    "cpp": ["(comment) @comment"],
+    "rust": ["(line_comment) @comment", "(block_comment) @comment"],
+    "typescript": ["(comment) @comment"],
+}
+
 
 def topological_sort(graph):
     # Stack to store the topological order

@@ -8,6 +8,7 @@ from typing import List, Tuple
 
 from transformers import AutoTokenizer
 
+from repoqa.compute_score import compute_score, save_json
 from repoqa.data import CACHE_DIR, get_repoqa_data
 from repoqa.utility import progress, topological_sort
 
@@ -184,17 +185,17 @@ def evaluate_model(
     os.makedirs(result_dir, exist_ok=True)
     context_size_dir = os.path.join(result_dir, f"ntoken_{code_context_size}")
     os.makedirs(context_size_dir, exist_ok=True)
-    result_file = os.path.join(
+    model_output_path = os.path.join(
         context_size_dir,
         f"{model.replace('/', '_slash_')}.jsonl",
     )
 
-    # resume from result_file
-    if os.path.exists(result_file):
-        with open(result_file) as f:
-            results = [json.loads(line) for line in f]
+    # resume from model_output_file
+    if os.path.exists(model_output_path):
+        with open(model_output_path) as f:
+            model_outputs = [json.loads(line) for line in f]
     else:
-        results = []
+        model_outputs = []
 
     # resume tasks from cache if any
     # schema: {"cache_id": .., **task}
@@ -214,7 +215,7 @@ def evaluate_model(
             print(f"Resuming from cache: {cache_file} with {len(cache)} tasks")
 
     resumed_task_ids = {
-        make_task_id(r["language"], r["repo"], r["name"]) for r in results
+        make_task_id(r["language"], r["repo"], r["name"]) for r in model_outputs
     }
 
     # for each task we include
@@ -316,7 +317,7 @@ def evaluate_model(
         print("🔥 System message is disabled")
         system_message = None
 
-    with open(result_file, "a") as f_out:
+    with open(model_output_path, "a") as f_out:
         with progress(f"Running {model}") as pbar:
             for task in pbar.track(tasks):
                 actual_position_ratio = (
@@ -336,9 +337,12 @@ def evaluate_model(
                 result = {**task, "output": replies}
                 f_out.write(json.dumps(result) + "\n")
                 f_out.flush()
-                results.append(result)
+                model_outputs.append(result)
 
-    # TODO(@Tom): also directly run the result analysis
+    file_base, file_ext = os.path.splitext(model_output_path)
+    result_path = file_base + "-SCORES" + file_ext
+    output_json = compute_score(model, dataset, model_outputs)
+    save_json(output_json, result_path)
 
 
 def main():

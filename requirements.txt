@@ -4,3 +4,5 @@ nltk
 appdirs
 rich
 vllm
+numpy
+tree_sitter_languages
