@@ -20,7 +20,7 @@ python scripts/curate/dataset_ensemble_clone.py
 
 > [!Tip]
 >
-> **Output**: `repoqa-snf-{datetime}.json` by adding a `"content"` field (path to content) for each repo.
+> **Output**: `repoqa-{datetime}.json` by adding a `"content"` field (path to content) for each repo.
 
 
 ### Step 3: Dependency analysis
@@ -45,23 +45,23 @@ python scripts/curate/dep_analysis/{language}.py  # python
 ### Step 4: Merge step 2 and step 3
 
 ```shell
-python scripts/curate/merge_dep.py --dataset-path repoqa-snf-{datetime}.json
+python scripts/curate/merge_dep.py --dataset-path repoqa-{datetime}.json
 ```
 
 > [!Tip]
 >
 > **Input**: Download dependency files in to `scripts/curate/dep_analysis/data`.
 >
-> **Output**: Update `repoqa-snf-{datetime}.json` by adding a `"dependency"` field for each repository.
+> **Output**: Update `repoqa-{datetime}.json` by adding a `"dependency"` field for each repository.
 
 
 ### Step 5: Function collection with TreeSitter
 
 ```shell
 # collect functions (in-place)
-python scripts/curate/function_analysis.py --dataset-path repoqa-snf-{datetime}.json
+python scripts/curate/function_analysis.py --dataset-path repoqa-{datetime}.json
 # select needles (in-place)
-python scripts/curate/needle_selection.py --dataset-path repoqa-snf-{datetime}.json
+python scripts/curate/needle_selection.py --dataset-path repoqa-{datetime}.json
 ```
 
 > [!Tip]
@@ -72,7 +72,7 @@ python scripts/curate/needle_selection.py --dataset-path repoqa-snf-{datetime}.j
 ### Step 6: Annotate each function with description to make a final dataset
 
 ```shell
-python scripts/curate/needle_annotation.py --dataset-path repoqa-snf-{datetime}.json
+python scripts/curate/needle_annotation.py --dataset-path repoqa-{datetime}.json
 ```
 
 > [!Tip]
@@ -85,7 +85,7 @@ python scripts/curate/needle_annotation.py --dataset-path repoqa-snf-{datetime}.
 ### Step 7: Merge needle description to the final dataset
 
 ```shell
-python scripts/curate/merge_annotation.py --dataset-path repoqa-snf-{datetime}.json --annotation-path {output-desc-path}.jsonl
+python scripts/curate/merge_annotation.py --dataset-path repoqa-{datetime}.json --annotation-path {output-desc-path}.jsonl
 ```
 
 > [!Tip]

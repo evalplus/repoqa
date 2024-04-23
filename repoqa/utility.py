@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from appdirs import user_cache_dir
 from rich.progress import (
     BarColumn,
     MofNCompleteColumn,
@@ -10,8 +9,6 @@ from rich.progress import (
     TextColumn,
     TimeElapsedColumn,
 )
-
-CACHE_DIR = user_cache_dir("repoqa")
 
 
 def topological_sort(graph):

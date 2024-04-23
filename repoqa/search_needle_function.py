@@ -8,7 +8,8 @@ from typing import List, Tuple
 
 from transformers import AutoTokenizer
 
-from repoqa.utility import CACHE_DIR, progress, topological_sort
+from repoqa.data import CACHE_DIR, get_repoqa_data
+from repoqa.utility import progress, topological_sort
 
 COMMENT_PREFIX = {
     "python": "#",
@@ -153,7 +154,6 @@ def make_cache_id(lang, repo, needle_name, code_context_size, position_ratio):
 
 
 def evaluate_model(
-    dataset_path: str,
     model: str,
     base_url: str = None,
     backend: str = None,
@@ -173,8 +173,7 @@ def evaluate_model(
         print(f"Using {backend} as the backend")
     assert backend is not None, "Please specify the backend"
 
-    with open(dataset_path) as f:
-        dataset = json.load(f)
+    dataset = get_repoqa_data()
 
     # makedir if not exists
     os.makedirs(result_dir, exist_ok=True)
