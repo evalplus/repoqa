@@ -17,5 +17,5 @@ def compute_function_similarity(
     chencherry = SmoothingFunction()
 
     return sentence_bleu(
-        [reference_tokens], candidate_tokens, smoothing_function=chencherry.method7
+        [reference_tokens], candidate_tokens, smoothing_function=chencherry.method4
     )

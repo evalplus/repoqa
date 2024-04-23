@@ -8,6 +8,7 @@ from typing import List, Tuple
 
 from transformers import AutoTokenizer
 
+from repoqa.compute_score import compute_score
 from repoqa.data import CACHE_DIR, get_repoqa_data
 from repoqa.utility import progress, topological_sort
 
@@ -165,6 +166,7 @@ def evaluate_model(
     caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
+    store_score: bool = True,  # if enabled, will store computed scores as a json file
 ):
     if backend is None:
         if base_url is not None:
@@ -338,7 +340,7 @@ def evaluate_model(
                 f_out.flush()
                 results.append(result)
 
-    # TODO(@Tom): also directly run the result analysis
+    compute_score(model, dataset, results, result_file, store_score)
 
 
 def main():

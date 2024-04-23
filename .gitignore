@@ -2,6 +2,7 @@
 .vscode/
 *.jsonl
 repoqa-*.json
+*.bak
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -3,6 +3,7 @@
 <p align="center">
     <a href="#-installation">🚀 Installation</a> •
     <a href="#-search-needle-function">🏁 Search Needle Function</a> •
+    <a href="#-compute-scores"> 🧮 Compute Score</a> •
     <a href="#-read-more">📚 Read More</a>
 </p>
 
@@ -66,13 +67,26 @@ repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
 * `--tensor-parallel-size`: Number of tensor parallelism (only for vLLM)
 * `--languages` (default: None): List of languages to evaluate (None means all)
 * `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
+* `--store-score` (default: False): if enabled, computed score will be stored within result-dir with name `{model-info}-SCORE.jsonl`
 
 </div>
 </details>
 
-### Compute Scores
+## 🧮 Compute Scores
 
-TBD
+```shell
+python repoqa/compute_score.py --dataset_path repoqa-{datetime}.json --output_path={model-evaluation-output}.jsonl --output_results True
+```
+
+<details><summary>⌨️ Output Information</i></summary>
+<div>
+
+- `Output`: The output of score evaluation results would be stored in `{model-evaluation-output}-SCORES.jsonl`
+
+- `Stdout`: The pass@1 results for all languages and each language at each similarity threshold would also be printed out.
+
+</div>
+</details>
 
 
 ## 📚 Read More
