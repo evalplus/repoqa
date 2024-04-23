@@ -339,8 +339,8 @@ def evaluate_model(
                 f_out.flush()
                 model_outputs.append(result)
 
-    file_base, file_ext = os.path.splitext(model_output_path)
-    result_path = file_base + "-SCORES" + file_ext
+    file_base, _ = os.path.splitext(model_output_path)
+    result_path = file_base + "-SCORES.json"
     output_json = compute_score(model, dataset, model_outputs)
     save_json(output_json, result_path)
 

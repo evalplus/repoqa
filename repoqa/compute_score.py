@@ -154,36 +154,38 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
 def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> Dict:
     eval_max_tokens = 0
     evaluation_result = defaultdict(list)
-    for result in progress(model_output):
-        lang = result["language"]
-        repo_name = result["repo"]
-        model_outputs = result["output"]
-        ground_truth = result["name"]
-        repo_info = get_repo(dataset[lang], repo_name)
+    with progress("Computing scores") as pbar:
+        for result in pbar.track(model_output):
+            lang = result["language"]
+            repo_name = result["repo"]
+            model_outputs = result["output"]
+            ground_truth = result["name"]
+            repo_info = get_repo(dataset[lang], repo_name)
 
-        model_output = model_outputs[0]
-        verdict, best_target, best_similarity = needle_evaluator(
-            model_output, ground_truth, repo_info, lang
-        )
+            model_output = model_outputs[0]
+            verdict, best_target, best_similarity = needle_evaluator(
+                model_output, ground_truth, repo_info, lang
+            )
 
-        is_best_similar = False
-        if verdict == Result.BEST_MATCH:
-            is_best_similar = True
+            is_best_similar = False
+            if verdict == Result.BEST_MATCH:
+                is_best_similar = True
 
-        current_task = {
-            "repo": repo_name,
-            "name": ground_truth,
-            "needle_position": result["position_ratio"],
-            "is_best_similar": is_best_similar,
-            "best_similar_score": best_similarity,
-            "best_target": best_target,
-            "position": {
-                "token_start": result["needle_token_start"],
-                "token_end": result["needle_token_end"],
-            },
-        }
-        eval_max_tokens = max(eval_max_tokens, result["code_context_ntokens"])
-        evaluation_result[lang].append(current_task)
+            current_task = {
+                "repo": repo_name,
+                "name": ground_truth,
+                "needle_position": result["position_ratio"],
+                "is_best_similar": is_best_similar,
+                "best_similar_score": best_similarity,
+                "best_target": best_target,
+                "position": {
+                    "token_start": result["needle_token_start"],
+                    "token_end": result["needle_token_end"],
+                },
+            }
+            eval_max_tokens = max(eval_max_tokens, result["code_context_ntokens"])
+            evaluation_result[lang].append(current_task)
+
     # Calculate pass@k
     pass_results = {}
 
@@ -274,8 +276,8 @@ def compute_main(model_output_path: str, dataset_path: str = None):
         for line in output_f:
             model_outputs.append(json.loads(line))
 
-    file_base, file_ext = os.path.splitext(model_output_path)
-    result_path = file_base + "-SCORES" + file_ext
+    file_base, _ = os.path.splitext(model_output_path)
+    result_path = file_base + "-SCORES.json"
     model_name = get_model_name(model_output_path)
     output_json = compute_score(model_name, dataset, model_outputs)
     save_json(output_json, result_path)

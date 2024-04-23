@@ -68,7 +68,7 @@ repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
 >   * `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
 > * **Output**:
 >   * `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
->   * `results/ntoken_{code-context-size}/{model}-SCORE.jsonl`: Evaluation scores (also see [Compute Scores](#compute-scores))
+>   * `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation scores (also see [Compute Scores](#compute-scores))
 
 ### Compute Scores
 
@@ -82,7 +82,7 @@ repoqa.compute_score --model-output-path={model-output}.jsonl
 > [!Tip]
 >
 > * **Input**: Path to the model generated outputs.
-> * **Output**: The evaluation scores would be stored in `{model-output}-SCORES.jsonl`
+> * **Output**: The evaluation scores would be stored in `{model-output}-SCORES.json`
 
 
 ## 📚 Read More
