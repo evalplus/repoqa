@@ -38,22 +38,20 @@ pip install -r requirements.txt
 
 ## 🏁 Search Needle Function
 
-### Inference
-
-#### vLLM
+### Inference with vLLM
 
 ```bash
 repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --caching --backend vllm
 ```
 
-#### OpenAI Compatible Servers
+### Inference with OpenAI Compatible Servers
 
 ```bash
 repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
                               --model "gpt4-turbo" --caching --backend openai
 ```
 
-#### Usage
+### Usage
 
 > [!Tip]
 >
