@@ -15,10 +15,8 @@ class HfProvider(BaseProvider):
     def __init__(self, model, trust_remote_code=False):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
         self.hf_model = AutoModelForCausalLM.from_pretrained(
-            model, trust_remote_code=trust_remote_code, device_map="auto"
-        )
-        if torch.cuda.is_available():
-            self.hf_model.cuda()
+            model, trust_remote_code=trust_remote_code
+        ).cuda()
 
     @torch.inference_mode()
     def generate_reply(
@@ -26,8 +24,8 @@ class HfProvider(BaseProvider):
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
         prompt_tokens = self.tokenizer.apply_chat_template(
-            construct_message_list(question, system_msg)
-        )
+            construct_message_list(question, system_msg), return_tensors="pt"
+        ).cuda()
         output_text = self.hf_model.generate(
             input_ids=prompt_tokens,
             max_new_tokens=max_tokens,
