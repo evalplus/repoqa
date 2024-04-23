@@ -314,6 +314,10 @@ def evaluate_model(
             max_model_len=int(code_context_size * 1.25),  # Magic number
             trust_remote_code=trust_remote_code,
         )
+    elif backend == "hf":
+        from repoqa.provider import HfProvider
+
+        engine = HfProvider(model, trust_remote_code=trust_remote_code)
 
     if not system_message:
         print("🔥 System message is disabled")

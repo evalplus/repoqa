@@ -51,6 +51,12 @@ repoqa.search_needle_function --base-url "http://api.openai.com/v1" \
                               --model "gpt4-turbo" --caching --backend openai
 ```
 
+### Inference with HuggingFace transformers
+
+```bash
+repoqa.search_needle_function --model "gpt2" "Qwen/CodeQwen1.5-7B-Chat" --caching --backend hf
+```
+
 ### Usage
 
 > [!Tip]
