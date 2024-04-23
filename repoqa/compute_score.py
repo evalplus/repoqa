@@ -141,7 +141,7 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
             correct_result = []
             for res in lang_results:
                 bc = 0
-                if res["is_best_similar"] and res["best_similar_score"]:
+                if res["is_best_similar"] and res["best_similar_score"] >= threshold:
                     bc = 1
                 correct_result.append(bc)
             correct_result = np.array(correct_result)
