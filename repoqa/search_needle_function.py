@@ -164,6 +164,7 @@ def evaluate_model(
     languages: List[str] = None,
     caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
+    dataset_path: str = None,
 ):
     if backend is None:
         if base_url is not None:
@@ -173,7 +174,11 @@ def evaluate_model(
         print(f"Using {backend} as the backend")
     assert backend is not None, "Please specify the backend"
 
-    dataset = get_repoqa_data()
+    if dataset_path is not None:
+        with open(dataset_path) as f:
+            dataset = json.load(f)
+    else:
+        dataset = get_repoqa_data()
 
     # makedir if not exists
     os.makedirs(result_dir, exist_ok=True)
