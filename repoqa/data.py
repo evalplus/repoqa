@@ -23,14 +23,14 @@ def _get_repoqa_data_ready_path() -> str:
         ), f"File not found: {REPOQA_DATA_OVERRIDE_PATH}"
         return REPOQA_DATA_OVERRIDE_PATH
 
-    gzip_url = f"https://github.com/evalplus/repoqa_release/releases/download/{REPOQA_DATA_VERSION}/repoqa-{REPOQA_DATA_VERSION}.jsonl.gz"
+    gzip_url = f"https://github.com/evalplus/repoqa_release/releases/download/{REPOQA_DATA_VERSION}/repoqa-{REPOQA_DATA_VERSION}.json.gz"
     cache_path = os.path.join(CACHE_DIR, f"repoqa-{REPOQA_DATA_VERSION}.json")
     # Check if human eval file exists in CACHE_DIR
     if not os.path.exists(cache_path):
-        # Install HumanEval dataset and parse as jsonl
+        # Install HumanEval dataset and parse as json
         print(f"Downloading dataset from {gzip_url}")
         with tempdir.TempDir() as tmpdir:
-            gzip_path = os.path.join(tmpdir, f"data.jsonl.gz")
+            gzip_path = os.path.join(tmpdir, f"data.json.gz")
             wget.download(gzip_url, gzip_path)
 
             with gzip.open(gzip_path, "rb") as f:
