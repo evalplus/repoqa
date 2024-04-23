@@ -11,7 +11,7 @@ gh release download dev-results --pattern "*.zip" --clobber
 unzip "*.zip"
 ```
 
-## Update results
+## Update model outputs
 
 ```bash
 cd results
@@ -21,8 +21,8 @@ for item in "$(pwd)"/*; do
     if [ -d "$item" ]; then
         # Get the base name of the directory
         dir_name=$(basename "$item")
-        zip -FSr "${dir_name}.zip" "$dir_name"
-        echo "Zipped $dir_name to ${dir_name}.zip"
+        zip -FSR "${dir_name}-output.zip" "$dir_name" "*.jsonl"
+        zip -FSR "${dir_name}-scores.zip" "$dir_name" "*-SCORES.json"
     fi
 done
 gh release upload dev-results ./*.zip --clobber

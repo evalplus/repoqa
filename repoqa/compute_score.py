@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
+from rich.console import Console
+from rich.table import Table
 from tree_sitter_languages import get_language, get_parser
 
 from repoqa.data import get_repoqa_data
@@ -92,6 +94,45 @@ def sanitize_output(model_output: str, lang: str) -> str:
     return processed_blocks[0]
 
 
+def print_result_table(model_name, pass_results):
+    # Printing scores in a table
+    table = Table(title=f"Scores (%) of {model_name} at different thresholds")
+    table.add_column("Language", justify="center", style="bold magenta")
+    for threshold in THRESHOLDS:
+        table.add_column(f"thresh={threshold}", justify="center")
+
+    # Prepare data to determine the maximum values for each threshold
+    threshold_scores = {threshold: [] for threshold in THRESHOLDS}
+    for lang_results in pass_results.values():
+        for thresh, value in lang_results.items():
+            threshold_scores[thresh].append(value["pass@1"])
+
+    # Calculate the maximum score for each threshold
+    max_scores = {
+        threshold: max(scores) for threshold, scores in threshold_scores.items()
+    }
+    min_scores = {
+        threshold: min(scores) for threshold, scores in threshold_scores.items()
+    }
+
+    # Fill the table rows
+    for language, lang_results in pass_results.items():
+        row = [language]
+        for threshold, value in lang_results.items():
+            score = value["pass@1"]
+            formatted_score = f"{100 * score:.1f}"
+            if max_scores[threshold] - score < 0.01:
+                formatted_score = f"[bold green]{formatted_score}[/]"
+            elif score - min_scores[threshold] < 0.01:
+                formatted_score = f"[bold red]{formatted_score}[/]"
+            row.append(formatted_score)
+        if language == "all":
+            row = [f"[bold on white]{r}[/]" for r in row]
+        table.add_row(*row)
+
+    Console().print(table)
+
+
 def needle_evaluator(
     model_output: str, ground_truth: str, repo_info: Dict, lang: str
 ) -> Tuple[Result, str, float]:
@@ -122,7 +163,7 @@ def needle_evaluator(
     return verdict, best_target, best_similarity
 
 
-def get_repo(lang_data: Dict, repo_name: str) -> Dict:
+def _get_repo(lang_data: Dict, repo_name: str) -> Dict:
     for repo in lang_data:
         if repo["repo"] == repo_name:
             return repo
@@ -152,15 +193,14 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
 
 
 def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> Dict:
-    eval_max_tokens = 0
     evaluation_result = defaultdict(list)
-    with progress("Computing scores") as pbar:
+    with progress(f"Scoring {model_name}") as pbar:
         for result in pbar.track(model_output):
             lang = result["language"]
             repo_name = result["repo"]
             model_outputs = result["output"]
             ground_truth = result["name"]
-            repo_info = get_repo(dataset[lang], repo_name)
+            repo_info = _get_repo(dataset[lang], repo_name)
 
             model_output = model_outputs[0]
             verdict, best_target, best_similarity = needle_evaluator(
@@ -183,7 +223,6 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
                     "token_end": result["needle_token_end"],
                 },
             }
-            eval_max_tokens = max(eval_max_tokens, result["code_context_ntokens"])
             evaluation_result[lang].append(current_task)
 
     # Calculate pass@k
@@ -211,19 +250,13 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
         pass_results["all"][threshold] = pass_at_k
 
     compute_language_results(evaluation_result, pass_results)
-    # Printing scores
-    for language, lang_results in pass_results.items():
-        print(f"Evaluation results across {language}: ")
-        for threshold, value in lang_results.items():
-            print(f"{threshold}: {value['pass@1']:.3f}", end="\t")
-        print("")
+    print_result_table(model_name, pass_results)
 
     output_json = {}
     model_json = {}
     model_json["eval_date"] = str(datetime.now())
-    # TODO Update train and evalsize
+    # TODO(@Tom): Include trainning and evaluation size
     model_json["train_size"] = None
-    model_json["eval_size"] = eval_max_tokens
     model_json["scores"] = pass_results
     model_json["results"] = evaluation_result
 
