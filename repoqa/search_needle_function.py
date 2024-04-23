@@ -166,6 +166,7 @@ def evaluate_model(
     caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
+    trust_remote_code: bool = False,
 ):
     if backend is None:
         if base_url is not None:
@@ -311,6 +312,7 @@ def evaluate_model(
             model,
             tensor_parallel_size=tensor_parallel_size,
             max_model_len=int(code_context_size * 1.25),  # Magic number
+            trust_remote_code=trust_remote_code,
         )
 
     if not system_message:

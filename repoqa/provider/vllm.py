@@ -12,12 +12,15 @@ from repoqa.provider.request import construct_message_list
 
 
 class VllmProvider(BaseProvider):
-    def __init__(self, model, tensor_parallel_size, max_model_len):
+    def __init__(
+        self, model, tensor_parallel_size, max_model_len, trust_remote_code=False
+    ):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
         self.llm = LLM(
             model=model,
             tensor_parallel_size=tensor_parallel_size,
             max_model_len=max_model_len,
+            trust_remote_code=trust_remote_code,
         )
 
     def generate_reply(
