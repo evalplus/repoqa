@@ -10,24 +10,22 @@ from collections import defaultdict
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
-from function_similarity import compute_function_similarity
-from tqdm import tqdm
 from tree_sitter_languages import get_language, get_parser
 
-from repoqa.utility import FUNCTION_QUERY
+from repoqa.data import get_repoqa_data
+from repoqa.metric import compute_function_similarity
+from repoqa.utility import FUNCTION_QUERY, progress
 
-LANGUAGES = ["cpp", "rust", "java", "python", "typescript"]
-
+LANGUAGES = list(FUNCTION_QUERY.keys())
 THRESHOLDS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 
 class Result(Enum):
-    PASS = "pass"
-    FAIL = "fail"
-    ERROR = "error"
+    BEST_MATCH = "best_match"
+    FAIL_MATCH = "fail_match"
 
 
 # unbiased estimator from https://github.com/openai/human-eval
@@ -118,11 +116,9 @@ def needle_evaluator(
             best_target = current_name
 
     if best_target == ground_truth:
-        verdict = Result.PASS
-    elif best_target == None:
-        verdict = Result.ERROR
+        verdict = Result.BEST_MATCH
     else:
-        verdict = Result.FAIL
+        verdict = Result.FAIL_MATCH
     return verdict, best_target, best_similarity
 
 
@@ -155,16 +151,10 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
         all_results[language] = current_result
 
 
-def compute_score(
-    model_name: str,
-    dataset: Dict,
-    results: List[Dict],
-    output_path: str,
-    output_results: bool = True,
-) -> None:
+def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> Dict:
     eval_max_tokens = 0
     evaluation_result = defaultdict(list)
-    for result in tqdm(results):
+    for result in progress(model_output):
         lang = result["language"]
         repo_name = result["repo"]
         model_outputs = result["output"]
@@ -177,7 +167,7 @@ def compute_score(
         )
 
         is_best_similar = False
-        if verdict == Result.PASS:
+        if verdict == Result.BEST_MATCH:
             is_best_similar = True
 
         current_task = {
@@ -226,14 +216,6 @@ def compute_score(
             print(f"{threshold}: {value['pass@1']:.3f}", end="\t")
         print("")
 
-    # Saving results
-    file_base, file_ext = os.path.splitext(output_path)
-
-    result_path = file_base + "-SCORES" + file_ext
-
-    if not output_results:
-        return
-
     output_json = {}
     model_json = {}
     model_json["eval_date"] = str(datetime.now())
@@ -245,6 +227,22 @@ def compute_score(
 
     output_json[model_name] = model_json
 
+    return output_json
+
+
+def get_model_name(output_path: str) -> str:
+    file_name = Path(output_path).stem
+    segments = file_name.split("_")
+    output_name = ""
+    for segment in segments:
+        if segment == "slash":
+            output_name += "/"
+        else:
+            output_name += segment
+    return output_name
+
+
+def save_json(output_json, result_path) -> None:
     if os.path.isfile(result_path):
         decision = ""
         while decision.lower() not in ["y", "n"]:
@@ -264,28 +262,23 @@ def compute_score(
             json.dump(output_json, f)
 
 
-def get_model_name(output_path: str) -> str:
-    file_name = Path(output_path).stem
-    segments = file_name.split("_")
-    output_name = ""
-    for segment in segments:
-        if segment == "slash":
-            output_name += "/"
-        else:
-            output_name += segment
-    return output_name
+def compute_main(model_output_path: str, dataset_path: str = None):
+    if dataset_path is None:
+        dataset = get_repoqa_data()
+    else:
+        with open(dataset_path, "r") as dataset_f:
+            dataset = json.load(dataset_f)
 
-
-def compute_main(dataset_path: str, output_path: str, output_results: bool = True):
-    results = []
-    with open(output_path, "r") as output_f:
+    model_outputs = []
+    with open(model_output_path, "r") as output_f:
         for line in output_f:
-            results.append(json.loads(line))
+            model_outputs.append(json.loads(line))
 
-    with open(dataset_path, "r") as dataset_f:
-        dataset = json.load(dataset_f)
-    model_name = get_model_name(output_path)
-    compute_score(model_name, dataset, results, output_path, output_results)
+    file_base, file_ext = os.path.splitext(model_output_path)
+    result_path = file_base + "-SCORES" + file_ext
+    model_name = get_model_name(model_output_path)
+    output_json = compute_score(model_name, dataset, model_outputs)
+    save_json(output_json, result_path)
 
 
 def main():
