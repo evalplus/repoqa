@@ -26,7 +26,7 @@ TEMPLATE = "instruction\ncode_context\ndescription\ninstruction"
 
 INSTRUCTION = (
     "Based on the function description and code context,"
-    " please reproduce the described function from the code context in a markdown block:"
+    " please retrieve and repeat the exact described function from the code context in a code block wrapped by ```:"
 )
 
 
