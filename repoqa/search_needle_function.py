@@ -302,11 +302,11 @@ def evaluate_model(
         return
 
     if backend == "openai":
-        from repoqa.provider import OpenAIProvider
+        from repoqa.provider.openai import OpenAIProvider
 
         engine = OpenAIProvider(model, base_url=base_url)
     elif backend == "vllm":
-        from repoqa.provider import VllmProvider
+        from repoqa.provider.vllm import VllmProvider
 
         engine = VllmProvider(
             model,
@@ -314,8 +314,12 @@ def evaluate_model(
             max_model_len=int(code_context_size * 1.25),  # Magic number
             trust_remote_code=trust_remote_code,
         )
+    elif backend == "anthropic":
+        from repoqa.provider.anthropic import AnthropicProvider
+
+        engine = AnthropicProvider(model)
     elif backend == "hf":
-        from repoqa.provider import HfProvider
+        from repoqa.provider.hf import HfProvider
 
         engine = HfProvider(model, trust_remote_code=trust_remote_code)
 

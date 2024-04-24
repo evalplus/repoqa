@@ -3,6 +3,3 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from repoqa.provider.base import BaseProvider
-from repoqa.provider.hf import HfProvider
-from repoqa.provider.openai import OpenAIProvider
-from repoqa.provider.vllm import VllmProvider
