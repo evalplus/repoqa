@@ -322,6 +322,12 @@ def evaluate_model(
         from repoqa.provider.hf import HfProvider
 
         engine = HfProvider(model, trust_remote_code=trust_remote_code)
+    elif backend == "google":
+        from repoqa.provider.google import GoogleProvider
+
+        engine = GoogleProvider(model)
+    else:
+        raise ValueError(f"Unknown backend: {backend}")
 
     if not system_message:
         print("🔥 System message is disabled")

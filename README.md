@@ -66,8 +66,14 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
 ### Inference with HuggingFace transformers
 
 ```bash
-repoqa.search_needle_function --model "gpt2" "Qwen/CodeQwen1.5-7B-Chat" \
+repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
                               --caching --backend hf --trust-remote-code
+```
+
+### Inference with Google Generative AI API
+
+```bash
+repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backend google
 ```
 
 ### Usage

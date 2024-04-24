@@ -7,3 +7,4 @@ vllm
 numpy
 tree_sitter_languages
 anthropic
+google-generativeai
