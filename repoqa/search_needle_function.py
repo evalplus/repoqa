@@ -25,7 +25,7 @@ COMMENT_PREFIX = {
 TEMPLATE = "instruction\ncode_context\ndescription\ninstruction"
 
 INSTRUCTION = (
-    "Based on the function discription and code context,"
+    "Based on the function description and code context,"
     " please reproduce the described function from the code context in a markdown block:"
 )
 
