@@ -308,5 +308,67 @@
             "entrypoint_path": "alacritty/src",
             "topic": "terminal-emulator"
         }
+    ],
+    "go": [
+        {
+            "repo": "junegunn/fzf",
+            "commit_sha": "eaae212d2d1b17360754afd9432c21640f15c832",
+            "entrypoint_path": "src",
+            "topic": "command-line tool"
+        },
+        {
+            "repo": "fatedier/frp",
+            "commit_sha": "e69292e5eb7b0f727fefa19cffec910718af31b3",
+            "entrypoint_path": "pkg",
+            "topic": "reverse proxy"
+        },
+        {
+            "repo": "caddyserver/caddy",
+            "commit_sha": "726a9a8fde60e4d72282b24fb553573fb388607c",
+            "entrypoint_path": "modules",
+            "topic": "web server"
+        },
+        {
+            "repo": "nsqio/nsq",
+            "commit_sha": "2127c0a1ce50a66d61d78496033b15ef5cb5e250",
+            "entrypoint_path": "internal",
+            "topic": "messaging platform"
+        },
+        {
+            "repo": "projectdiscovery/nuclei",
+            "commit_sha": "66da73c1b1f320817a2a7d33404de5c8f9435fb6",
+            "entrypoint_path": "pkg",
+            "topic": "vulnerability scanner"
+        },
+        {
+            "repo": "jesseduffield/lazydocker",
+            "commit_sha": "80af149b023f4d9be68a643412183d389d73368d",
+            "entrypoint_path": "pkg",
+            "topic": "docker management"
+        },
+        {
+            "repo": "zeromicro/go-zero",
+            "commit_sha": "b337ae36e50092488c1899069f860007447fa17c",
+            "entrypoint_path": "core",
+            "topic": "cloud-native microservices"
+        },
+        {
+            "repo": "schollz/croc",
+            "commit_sha": "d81116382fcb9dddb79b02ed4b0da99e7aecb2ab",
+            "entrypoint_path": "src",
+            "topic": "data transfer"
+        },
+        {
+            "repo": "iawia002/lux",
+            "commit_sha": "59f517bb7138acd4fffcced4560197e83a592fc2",
+            "entrypoint_path": "extractors",
+            "topic": "video download"
+        },
+        {
+            "repo": "lima-vm/lima",
+            "commit_sha": "5f6bfc951f5df6f8d21e3e2ccf9693146216ef4d",
+            "entrypoint_path": "cmd",
+            "topic": "Linux virtual machines"
+        }
     ]
 }
