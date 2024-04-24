@@ -312,13 +312,13 @@
     "go": [
         {
             "repo": "junegunn/fzf",
-            "commit_sha": "eaae212d2d1b17360754afd9432c21640f15c832",
+            "commit_sha": "e352b6887849cb6c3c8ae1d98ed357f94273e90a",
             "entrypoint_path": "src",
             "topic": "command-line tool"
         },
         {
             "repo": "fatedier/frp",
-            "commit_sha": "e69292e5eb7b0f727fefa19cffec910718af31b3",
+            "commit_sha": "eaae212d2d1b17360754afd9432c21640f15c832",
             "entrypoint_path": "pkg",
             "topic": "reverse proxy"
         },
