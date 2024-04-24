@@ -15,6 +15,7 @@ from typing import Dict, List, Tuple, Union
 import numpy as np
 from rich.console import Console
 from rich.table import Table
+from transformers import AutoConfig
 from tree_sitter_languages import get_language, get_parser
 
 from repoqa.data import get_repoqa_data
@@ -192,6 +193,15 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
         all_results[language] = current_result
 
 
+def fetch_hf_context(model_name: str) -> str:
+    try:
+        config = AutoConfig.from_pretrained(model_name).to_dict()
+        return str(int(config["max_position_embeddings"] / 1024)) + "k"
+    except Exception as err:
+        print(f"fetching failed due to {err}")
+        return "N/A"
+
+
 def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> Dict:
     evaluation_result = defaultdict(list)
     with progress(f"Scoring {model_name}") as pbar:
@@ -255,8 +265,15 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
     output_json = {}
     model_json = {}
     model_json["eval_date"] = str(datetime.now())
-    # TODO(@Tom): Include trainning and evaluation size
-    model_json["train_size"] = None
+
+    # hardcode paid models
+    if model_name.startswith("gpt-4-"):
+        train_context = "128k"
+    elif model_name.startswith("gpt-3.5-"):
+        train_context = "16k"
+    else:
+        train_context = fetch_hf_context(model_name)
+    model_json["train_size"] = train_context
     model_json["scores"] = pass_results
     model_json["results"] = evaluation_result
 
