@@ -271,14 +271,21 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
     model_json["eval_date"] = str(datetime.now())
 
     # hardcode paid models
-    if model_name.startswith("gpt-4-"):
+    if "/" in model_name:
+        if model_name.startswith("bigcode/starcoder2"):
+            train_context = "16k"
+        else:
+            train_context = fetch_hf_context(model_name)
+    elif model_name.startswith("gpt-4-turbo"):
         train_context = "128k"
     elif model_name.startswith("gpt-3.5-"):
         train_context = "16k"
-    elif model_name.startswith("bigcode/starcoder2-instruct"):
-        train_context = "16k"
+    elif model_name.startswith("gemini-1.5-pro"):
+        train_context = "1000k"
+    elif model_name.startswith("gemini-1.0-pro"):
+        train_context = "32k"
     else:
-        train_context = fetch_hf_context(model_name)
+        train_context = "N/A"
     model_json["train_size"] = train_context
     model_json["scores"] = pass_results
     model_json["results"] = evaluation_result
