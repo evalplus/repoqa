@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
+import tempdir
 from rich.console import Console
 from rich.table import Table
 from transformers import AutoConfig
@@ -195,8 +196,11 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
 
 def fetch_hf_context(model_name: str) -> str:
     try:
-        config = AutoConfig.from_pretrained(model_name).to_dict()
-        return str(int(config["max_position_embeddings"] / 1024)) + "k"
+        with tempdir.TempDir() as temp_dir:
+            config = AutoConfig.from_pretrained(
+                model_name, cache_dir=temp_dir, force_download=True
+            ).to_dict()
+            return str(int(config["max_position_embeddings"] / 1024)) + "k"
     except Exception as err:
         print(f"fetching failed due to {err}")
         return "N/A"
@@ -270,6 +274,8 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
     if model_name.startswith("gpt-4-"):
         train_context = "128k"
     elif model_name.startswith("gpt-3.5-"):
+        train_context = "16k"
+    elif model_name.startswith("bigcode/starcoder2-instruct"):
         train_context = "16k"
     else:
         train_context = fetch_hf_context(model_name)
