@@ -42,6 +42,8 @@ You can run the SNF evaluation using various backends.
 > [!Note]
 >
 > All evaluation can be performed in one just command.
+>
+> As a reference of evaluation time, it takes 30 minutes to evaluate a 7B model using two A6000s.
 
 ### OpenAI Compatible Servers
 
@@ -77,6 +79,10 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
 ```bash
 repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backend google
 ```
+
+> [!Tip]
+>
+> To evaluate models whose context size is smaller than the prompt, you can edit the `config.json` file to modify `max_position_embeddings` for the model in HuggingFace cache directory.
 
 ### Usage
 
