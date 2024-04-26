@@ -45,7 +45,7 @@ def make_auto_request(client: anthropic.Client, *args, **kwargs) -> Message:
         except anthropic.RateLimitError:
             print("Rate limit exceeded. Waiting...")
             signal.alarm(0)
-            time.sleep(5)
+            time.sleep(10)
         except anthropic.APIConnectionError:
             print("API connection error. Waiting...")
             signal.alarm(0)
