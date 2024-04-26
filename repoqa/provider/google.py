@@ -35,7 +35,7 @@ class GoogleProvider(BaseProvider):
         for candidate in replies.candidates:
             parts = candidate.content.parts
             if parts:
-                ret_texts.appned(parts[0].text)
+                ret_texts.append(parts[0].text)
             else:
                 print("Empty response!")
                 print(f"{candidate.safety_ratings = }")
