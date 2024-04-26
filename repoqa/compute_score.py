@@ -99,9 +99,9 @@ def sanitize_output(model_output: str, lang: str) -> str:
 def print_result_table(model_name, pass_results):
     # Printing scores in a table
     table = Table(title=f"Scores (%) of {model_name} at different thresholds")
-    table.add_column("Language", justify="center", style="bold magenta")
+    table.add_column("Threshold", justify="center", style="bold magenta")
     for threshold in THRESHOLDS:
-        table.add_column(f"thresh={threshold}", justify="center")
+        table.add_column(f"{threshold}", justify="center")
 
     # Prepare data to determine the maximum values for each threshold
     threshold_scores = {threshold: [] for threshold in THRESHOLDS}
@@ -119,7 +119,7 @@ def print_result_table(model_name, pass_results):
 
     # Fill the table rows
     for language, lang_results in pass_results.items():
-        row = [language]
+        row = [("⭐" if language == "all" else "") + language]
         for threshold, value in lang_results.items():
             score = value["pass@1"]
             formatted_score = f"{100 * score:.1f}"
@@ -129,7 +129,7 @@ def print_result_table(model_name, pass_results):
                 formatted_score = f"[bold red]{formatted_score}[/]"
             row.append(formatted_score)
         if language == "all":
-            row = [f"[bold on white]{r}[/]" for r in row]
+            row = [f"[bold yellow]{r}[/]" for r in row]
         table.add_row(*row)
 
     Console().print(table)
@@ -198,7 +198,10 @@ def fetch_hf_context(model_name: str) -> str:
     try:
         with tempdir.TempDir() as temp_dir:
             config = AutoConfig.from_pretrained(
-                model_name, cache_dir=temp_dir, force_download=True
+                model_name,
+                cache_dir=temp_dir,
+                force_download=True,
+                trust_remote_code=True,
             ).to_dict()
             return str(int(config["max_position_embeddings"] / 1024)) + "k"
     except Exception as err:
@@ -284,6 +287,8 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
         train_context = "1000k"
     elif model_name.startswith("gemini-1.0-pro"):
         train_context = "32k"
+    elif model_name.startswith("claude-3-"):
+        train_context = "200k"
     else:
         train_context = "N/A"
     model_json["train_size"] = train_context
