@@ -31,4 +31,14 @@ class GoogleProvider(BaseProvider):
             system_msg=system_msg,
         )
 
-        return [reply.text for reply in replies]
+        ret_texts = []
+        for candidate in replies.candidates:
+            parts = candidate.content.parts
+            if parts:
+                ret_texts.appned(parts[0].text)
+            else:
+                print("Empty response!")
+                print(f"{candidate.safety_ratings = }")
+                ret_texts.append("")
+
+        return ret_texts
