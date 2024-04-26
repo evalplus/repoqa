@@ -1,10 +1,10 @@
-fire
-openai
-nltk
 appdirs
+fire
+nltk
 rich
-vllm
 numpy
 tree_sitter_languages
+openai
 anthropic
 google-generativeai
+vllm

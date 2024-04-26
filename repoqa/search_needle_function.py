@@ -163,7 +163,7 @@ def evaluate_model(
     max_new_tokens: int = 1024,
     result_dir: str = "results",
     languages: List[str] = None,
-    caching: bool = False,  # if enabled, will cache the tasks which can be used to resume
+    caching: bool = True,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
     trust_remote_code: bool = False,

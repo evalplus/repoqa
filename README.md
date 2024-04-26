@@ -11,7 +11,7 @@
 ```bash
 # without vLLM (can run openai, anthropic, and huggingface backends)
 pip install --upgrade repoqa
-# with vLLM
+# To enable vLLM
 pip install --upgrade "repoqa[vllm]"
 ```
 
@@ -39,9 +39,15 @@ pip install -r requirements.txt
 </div>
 </details>
 
-## 🏁 Search Needle Function
+## 🏁 Search Needle Function (SNF)
 
-### Inference with OpenAI Compatible Servers
+You can run the SNF evaluation using various backends.
+
+> [!Note]
+>
+> All evaluation can be performed in one just command.
+
+### OpenAI Compatible Servers
 
 ```bash
 repoqa.search_needle_function --model "gpt4-turbo" --caching --backend openai
@@ -50,27 +56,27 @@ repoqa.search_needle_function --model "gpt4-turbo" --caching --backend openai
 #                               --model "gpt4-turbo" --caching --backend openai
 ```
 
-### Inference with Anthropic Compatible Servers
+### Anthropic Compatible Servers
 
 ```bash
 repoqa.search_needle_function --model "claude-3-haiku-20240307" --caching --backend anthropic
 ```
 
-### Inference with vLLM
+### vLLM
 
 ```bash
 repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
                               --caching --backend vllm
 ```
 
-### Inference with HuggingFace transformers
+### HuggingFace transformers
 
 ```bash
 repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
                               --caching --backend hf --trust-remote-code
 ```
 
-### Inference with Google Generative AI API
+### Google Generative AI API (Gemini)
 
 ```bash
 repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backend google
@@ -84,21 +90,22 @@ repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backen
 >   - `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
 >   - `--backend`: `vllm` (default) or `openai`
 >   - `--base-url`: OpenAI API base URL
->   - `--code-context-size` (default: 16384): Number of tokens (using DeepSeekCoder tokenizer) of code in the long context
->   - `--caching` (default: False): if enabled, the tokenization and chuncking results will be cached to accelerate subsequent runs
+>   - `--code-context-size` (default: 16384): Number of tokens (by DeepSeekCoder tokenizer) of repository context
+>   - `--caching` (default: True): accelerate subsequent runs by caching tokenization and chuncking results
 >   - `--max-new-tokens` (default: 1024): Maximum number of new tokens to generate
->   - `--system-message` (default: None): if given, the model use a system message (but note some models don't support system message)
+>   - `--system-message` (default: None): the system message (note some models don't use system message)
 >   - `--tensor-parallel-size`: Number of tensor parallelism (only for vLLM)
 >   - `--languages` (default: None): List of languages to evaluate (None means all)
 >   - `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
+>   - `--trust-remote-code` (default: False): Trust the remote code (for HuggingFace transformers and vLLM)
 > - **Output**:
 >   - `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
 >   - `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation scores (also see [Compute Scores](#compute-scores))
 
 ### Compute Scores
 
-By default, the `repoqa.search_needle_function` command will also compute scores after producing model outputs.
-However, you can also compute scores separately using the following command:
+By default, the `repoqa.search_needle_function` command will evaluate model outputs and compute scores after text generation.
+However, you can also separately compute scores using the following command:
 
 ```shell
 repoqa.compute_score --model-output-path={model-output}.jsonl
