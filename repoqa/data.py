@@ -47,4 +47,4 @@ def _get_repoqa_data_ready_path() -> str:
 
 def get_repoqa_data():
     with open(_get_repoqa_data_ready_path(), "r") as f:
-        return [json.loads(line) for line in f]
+        return json.load(f)
