@@ -21,6 +21,7 @@ COMMENT_QUERY = {
     "cpp": ["(comment) @comment"],
     "rust": ["(line_comment) @comment", "(block_comment) @comment"],
     "typescript": ["(comment) @comment"],
+    "go": ["(comment) @comment"],
 }
 
 FUNCTION_QUERY = {

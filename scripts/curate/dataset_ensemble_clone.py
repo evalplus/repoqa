@@ -8,6 +8,7 @@ from datetime import datetime
 import git
 import tempdir
 from fire import Fire
+from obfuscate_nl import remove_comments as remove_comments_str
 from tqdm.auto import tqdm
 
 from scripts.curate.utility import lang2suffix
@@ -25,7 +26,13 @@ def get_files_to_include(gh_repo, entrypoint, lang_suffix):
 
 def main(
     target_path: str = f"repoqa-{datetime.now().isoformat()}.json",
+    remove_comments: bool = False,
 ):
+    print(
+        "Removing comment in files."
+        if remove_comments
+        else "Not removing comments in files."
+    )
     # read /scripts/cherrypick/lists.json
     with open("scripts/cherrypick/lists.json") as f:
         lists = json.load(f)
@@ -58,6 +65,10 @@ def main(
                 for path, abspath in files_to_include:
                     with open(abspath, "r") as f:
                         repo["content"][path] = f.read()
+                        if remove_comments:
+                            repo["content"][path] = remove_comments_str(
+                                repo["content"][path], lang
+                            )
 
     with open(target_path, "w") as f_out:
         json.dump(lists, f_out)
