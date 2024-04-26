@@ -1,10 +1,6 @@
 # RepoQA: Evaluating Long-Context Code Understanding
 
-<p align="center">
-    <a href="#-installation">🚀 Installation</a> •
-    <a href="#-search-needle-function">🏁 Search Needle Function</a> •
-    <a href="#-read-more">📚 Read More</a>
-</p>
+🏠 Homepage: [https://evalplus.github.io/repoqa.html](https://evalplus.github.io/repoqa.html)
 
 ## 🚀 Installation
 
