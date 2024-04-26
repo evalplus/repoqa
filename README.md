@@ -48,36 +48,34 @@ You can run the SNF evaluation using various backends.
 ### OpenAI Compatible Servers
 
 ```bash
-repoqa.search_needle_function --model "gpt4-turbo" --caching --backend openai
+repoqa.search_needle_function --model "gpt4-turbo" --backend openai
 # 💡 If you use customized server such vLLM:
 # repoqa.search_needle_function --base-url "http://url.to.vllm.server/v1" \
-#                               --model "gpt4-turbo" --caching --backend openai
+#                               --model "gpt4-turbo" --backend openai
 ```
 
 ### Anthropic Compatible Servers
 
 ```bash
-repoqa.search_needle_function --model "claude-3-haiku-20240307" --caching --backend anthropic
+repoqa.search_needle_function --model "claude-3-haiku-20240307" --backend anthropic
 ```
 
 ### vLLM
 
 ```bash
-repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
-                              --caching --backend vllm
+repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 ```
 
 ### HuggingFace transformers
 
 ```bash
-repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" \
-                              --caching --backend hf --trust-remote-code
+repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend hf --trust-remote-code
 ```
 
 ### Google Generative AI API (Gemini)
 
 ```bash
-repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backend google
+repoqa.search_needle_function --model "gemini-1.5-pro-latest" --backend google
 ```
 
 > [!Tip]
@@ -93,7 +91,7 @@ repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backen
 >   - `--backend`: `vllm` (default) or `openai`
 >   - `--base-url`: OpenAI API base URL
 >   - `--code-context-size` (default: 16384): #tokens (by DeepSeekCoder tokenizer) of repository context
->   - `--caching` (default: True): accelerate subsequent runs by caching tokenization and chuncking results
+>   - `--caching` (default: True): accelerate subsequent runs by caching preprocessing; `--nocaching` to disable
 >   - `--max-new-tokens` (default: 1024): Maximum #new tokens to generate
 >   - `--system-message` (default: None): system message (note it's not supported by some models)
 >   - `--tensor-parallel-size`: #GPUS for doing tensor parallelism (only for vLLM)
