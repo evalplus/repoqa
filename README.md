@@ -86,17 +86,17 @@ repoqa.search_needle_function --model "gemini-1.5-pro-latest" --caching --backen
 >   - `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
 >   - `--backend`: `vllm` (default) or `openai`
 >   - `--base-url`: OpenAI API base URL
->   - `--code-context-size` (default: 16384): Number of tokens (by DeepSeekCoder tokenizer) of repository context
+>   - `--code-context-size` (default: 16384): #tokens (by DeepSeekCoder tokenizer) of repository context
 >   - `--caching` (default: True): accelerate subsequent runs by caching tokenization and chuncking results
->   - `--max-new-tokens` (default: 1024): Maximum number of new tokens to generate
->   - `--system-message` (default: None): the system message (note some models don't use system message)
->   - `--tensor-parallel-size`: Number of tensor parallelism (only for vLLM)
+>   - `--max-new-tokens` (default: 1024): Maximum #new tokens to generate
+>   - `--system-message` (default: None): system message (note it's not supported by some models)
+>   - `--tensor-parallel-size`: #GPUS for doing tensor parallelism (only for vLLM)
 >   - `--languages` (default: None): List of languages to evaluate (None means all)
 >   - `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
->   - `--trust-remote-code` (default: False): Trust the remote code (for HuggingFace transformers and vLLM)
+>   - `--trust-remote-code` (default: False): allow remote code (for HuggingFace transformers and vLLM)
 > - **Output**:
 >   - `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
->   - `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation scores (also see [Compute Scores](#compute-scores))
+>   - `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation results
 
 ### Compute Scores
 
