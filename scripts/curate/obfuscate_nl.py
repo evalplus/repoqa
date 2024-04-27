@@ -4,11 +4,13 @@
 
 import json
 import re
+import os
 
 from tqdm import tqdm
 from tree_sitter_languages import get_language, get_parser
 from utility import COMMENT_QUERY, FUNCTION_NAME_QUERY
 
+from fire import Fire
 
 def remove_comments(code, language):
     query_texts = COMMENT_QUERY[language]
@@ -23,8 +25,8 @@ def remove_comments(code, language):
     comment_chunks.sort(key=len, reverse=True)
     for chunk in comment_chunks:
         chunk_lines = chunk.splitlines()
-        chunk_lines_len = [len(bytes(line, "utf8")) for line in chunk_lines]
-        chunk_lines_empty = [bytes("", "utf8").ljust(llen, b'\0') for llen in chunk_lines_len]
+        chunk_lines_len = [len(bytes(line, "utf-8")) for line in chunk_lines]
+        chunk_lines_empty = [(bytes("", "utf-8").ljust(llen, b'\0')).decode('utf-8') for llen in chunk_lines_len]
         chunk_empty = "\n".join(chunk_lines_empty)
         code = code.replace(
             chunk, chunk_empty
@@ -49,3 +51,32 @@ def rename_functions(code, language, starting_index=0):
         code = code.replace(name, function_map[name])
         current_index += 1
     return code, function_map
+
+def main(
+    ds_filepath: str
+):
+    dataset_file = open(ds_filepath, "r")
+    dataset = dataset_file.read()
+    dataset = json.loads(dataset)
+    dataset_file.close()
+
+    for lang in dataset.keys():
+        print(f"🔥 Processing language: {lang}")
+        for repo_idx in tqdm(range(len(dataset[lang]))):
+            for filepath in dataset[lang][repo_idx]["content"].keys():
+                prev_byte_len = len(bytes(dataset[lang][repo_idx]["content"][filepath], 'utf-8'))
+                dataset[lang][repo_idx]["content"][filepath] = remove_comments(dataset[lang][repo_idx]["content"][filepath], lang)
+                new_byte_len = len(bytes(dataset[lang][repo_idx]["content"][filepath], 'utf-8'))
+                assert prev_byte_len == new_byte_len
+
+    dataset_dir = "/".join(ds_filepath.split("/")[:-1])
+    ds_filepath = ds_filepath.split("/")[-1]
+    ds_fname = ".".join(ds_filepath.split(".")[:-1])
+    ds_ext = ds_filepath.split(".")[-1]
+
+    obfs_ds_file = open(os.path.join(dataset_dir, f"{ds_fname}-obfuscated.{ds_ext}"), "w+")
+    obfs_ds_file.write(json.dumps(dataset))
+    obfs_ds_file.close()
+
+if __name__ == "__main__":
+    Fire(main)
