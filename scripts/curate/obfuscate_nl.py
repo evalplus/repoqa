@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# Run with ```python scripts/curate/obfuscate_nl.py repoqa-2024-04-20.json```
+# Will save to repoqa-2024-04-20-obfuscated.json
+
 import json
 import re
 import os
