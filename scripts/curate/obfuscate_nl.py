@@ -22,9 +22,13 @@ def remove_comments(code, language):
             comment_chunks.append(node.text.decode("utf-8"))
     comment_chunks.sort(key=len, reverse=True)
     for chunk in comment_chunks:
+        chunk_lines = chunk.splitlines()
+        chunk_lines_len = [len(bytes(line, "utf8")) for line in chunk_lines]
+        chunk_lines_empty = [bytes("", "utf8").ljust(llen, b'\0') for llen in chunk_lines_len]
+        chunk_empty = "\n".join(chunk_lines_empty)
         code = code.replace(
-            chunk, ""
-        )  # TODO: How do you deal with empty commpents such as a single "#" line?
+            chunk, chunk_empty
+        )
     return code
 
 
