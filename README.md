@@ -37,6 +37,20 @@ pip install -r requirements.txt
 
 ## 🏁 Search Needle Function (SNF)
 
+Search Needle Function is the first RepoQA task which aims to practice LLMs' ability of **long-context code understanding and retrieval**.
+Its real-life application is to perform precise code search from user intent rather than simple keyword match. 
+
+> [!Important]
+>
+> There is 500 tests (5 programming langauges x 10 repositories x 10 needle functions) where an LLM is given:
+> 1. A large code context sorted in file dependency
+> 2. A natural-language description of the needle function without revealing keywords like funciton/variable names
+> 3. An instruction to retrieve the described function
+>
+> The LLM is expected search for the described function by repeating it.
+> The evaluator passes a test if the searched function is syntactically closest to the ground-truth compared against 
+> other functions (systematically parsed by `treesitter`) and the similarity is greater than a user defined threshould (by default 0.8).
+
 You can run the SNF evaluation using various backends.
 
 > [!Note]
@@ -49,9 +63,9 @@ You can run the SNF evaluation using various backends.
 
 ```bash
 repoqa.search_needle_function --model "gpt4-turbo" --backend openai
-# 💡 If you use customized server such vLLM:
-# repoqa.search_needle_function --base-url "http://url.to.vllm.server/v1" \
-#                               --model "gpt4-turbo" --backend openai
+# 💡 If you use openai API compatible server such as vLLM servers:
+# repoqa.search_needle_function --base-url "http://localhost:[PORT]/v1" \
+#                               --model "Qwen/CodeQwen1.5-7B-Chat" --backend openai
 ```
 
 ### Anthropic Compatible Servers
