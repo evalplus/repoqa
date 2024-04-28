@@ -17,9 +17,10 @@ class AnthropicProvider(BaseProvider):
         self.client = Client(api_key=os.getenv("ANTHROPIC_KEY"))
 
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
+        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None, stop=None
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
+        assert stop is None, "stop is not supported in Anthropic provider"
         replies = []
         for _ in range(n):
             reply = make_auto_request(
