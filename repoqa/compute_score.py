@@ -144,6 +144,7 @@ def needle_evaluator(
     best_target = None
     best_similarity = 0
     sanitized_output = sanitize_output(model_output, lang)
+
     for needle in needles:
         current_path = needle["path"]
         current_name = needle["name"]

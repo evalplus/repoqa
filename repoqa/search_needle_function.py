@@ -37,6 +37,10 @@ BASE_MODEL_TEMPLATE = """You are an exceptionally intelligent coding assistant t
 ### Response
 {response}"""
 
+BASE_MODEL_RESPONSE_PREFIX = """Here is the exact single function that matches with the description:
+
+```{lang}"""
+
 
 def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
     """Return the text and tokens from bottom to top"""
@@ -173,6 +177,7 @@ def evaluate_model(
     result_dir: str = "results",
     languages: List[str] = None,
     caching: bool = True,  # if enabled, will cache the tasks which can be used to resume
+    batched: bool = False,  # for VLLM only
     system_message: str = None,
     dataset_path: str = None,
     trust_remote_code: bool = False,
@@ -184,6 +189,9 @@ def evaluate_model(
             backend = "vllm"
         print(f"Using {backend} as the backend")
     assert backend is not None, "Please specify the backend"
+
+    if batched:
+        assert backend == "vllm", "Batched mode is only supported for VLLM"
 
     if dataset_path is not None:
         with open(dataset_path) as f:
@@ -342,7 +350,14 @@ def evaluate_model(
         print("🔥 System message is disabled")
         system_message = None
 
+    if is_base_model:
+        assert isinstance(engine, VllmProvider), "Only VLLM supports base model"
+        print("🔥 Base model enabled, disabling chat template")
+        engine.tokenizer.chat_template = None
+
     with open(model_output_path, "a") as f_out:
+        if batched:
+            prompts: List[str] = []
         with progress(f"Running {model}") as pbar:
             for task in pbar.track(tasks):
                 actual_position_ratio = (
@@ -356,9 +371,17 @@ def evaluate_model(
                 for key in task["template"].split("\n"):
                     prompt += task[key]
                 if is_base_model:
+                    assert isinstance(
+                        engine, VllmProvider
+                    ), "Only VLLM supports base model"
+                    engine.tokenizer.chat_template = None
                     prompt = BASE_MODEL_TEMPLATE.format(
-                        instruction=task["instruction"], response=f"```{lang}"
+                        instruction=prompt,
+                        response=BASE_MODEL_RESPONSE_PREFIX.format(lang=lang),
                     )
+                if batched:
+                    prompts.append(prompt)
+                    continue
                 replies = engine.generate_reply(
                     prompt,
                     n=1,
@@ -366,6 +389,21 @@ def evaluate_model(
                     system_msg=system_message,
                     stop="```" if is_base_model else None,
                 )
+                result = {**task, "output": replies}
+                f_out.write(json.dumps(result) + "\n")
+                f_out.flush()
+                model_outputs.append(result)
+        if batched:
+            assert isinstance(engine, VllmProvider)
+            replies_batched = engine.generate_reply_batched(
+                prompts,
+                n=1,
+                max_tokens=max_new_tokens,
+                system_msg=system_message,
+                stop="```" if is_base_model else None,
+            )
+            assert len(replies_batched) == len(tasks)
+            for task, replies in zip(tasks, replies_batched):
                 result = {**task, "output": replies}
                 f_out.write(json.dumps(result) + "\n")
                 f_out.flush()
