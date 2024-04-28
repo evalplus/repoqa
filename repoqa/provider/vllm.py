@@ -24,7 +24,13 @@ class VllmProvider(BaseProvider):
         )
 
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
+        self,
+        question,
+        n=1,
+        max_tokens=1024,
+        temperature=0,
+        system_msg=None,
+        stop=None,
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
         prompt = self.tokenizer.apply_chat_template(
@@ -35,6 +41,7 @@ class VllmProvider(BaseProvider):
             SamplingParams(
                 temperature=temperature,
                 max_tokens=max_tokens,
+                stop=stop,
             ),
             use_tqdm=False,
         )

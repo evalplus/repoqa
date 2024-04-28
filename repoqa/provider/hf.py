@@ -20,9 +20,10 @@ class HfProvider(BaseProvider):
 
     @torch.inference_mode()
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
+        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None, stop=None
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
+        assert stop is None, "stop is not supported in Hugging Face provider"
         prompt_tokens = self.tokenizer.apply_chat_template(
             construct_message_list(question, system_msg), return_tensors="pt"
         ).cuda()

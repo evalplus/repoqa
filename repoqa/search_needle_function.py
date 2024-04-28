@@ -29,6 +29,14 @@ INSTRUCTION = (
     " please retrieve and repeat the exact described function from the code context in a code block wrapped by ```:"
 )
 
+BASE_MODEL_TEMPLATE = """You are an exceptionally intelligent coding assistant that consistently delivers accurate and reliable responses to long-context user instructions.
+
+### Instruction
+{instruction}
+
+### Response
+{response}"""
+
 
 def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
     """Return the text and tokens from bottom to top"""
@@ -156,6 +164,7 @@ def make_cache_id(lang, repo, needle_name, code_context_size, position_ratio):
 
 def evaluate_model(
     model: str,
+    is_base_model: bool = False,
     base_url: str = None,
     backend: str = None,
     tensor_parallel_size: int = 1,
@@ -346,9 +355,16 @@ def evaluate_model(
                 prompt = ""
                 for key in task["template"].split("\n"):
                     prompt += task[key]
-
+                if is_base_model:
+                    prompt = BASE_MODEL_TEMPLATE.format(
+                        instruction=task["instruction"], response=f"```{lang}"
+                    )
                 replies = engine.generate_reply(
-                    prompt, n=1, max_tokens=max_new_tokens, system_msg=system_message
+                    prompt,
+                    n=1,
+                    max_tokens=max_new_tokens,
+                    system_msg=system_message,
+                    stop="```" if is_base_model else None,
                 )
                 result = {**task, "output": replies}
                 f_out.write(json.dumps(result) + "\n")
