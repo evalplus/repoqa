@@ -18,7 +18,7 @@ class GoogleProvider(BaseProvider):
         self.client = genai.GenerativeModel(model)
 
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
+        self, question, n=1, max_tokens=1024, temperature=0.0, system_msg=None
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
         replies = make_auto_request(

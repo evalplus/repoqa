@@ -10,3 +10,4 @@ openai
 anthropic
 google-generativeai
 vllm
+stop-sequencer

@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ## 🏁 Search Needle Function (SNF)
 
 Search Needle Function is the first RepoQA task which aims to practice LLMs' ability of **long-context code understanding and retrieval**.
-Its corresponding real-life application is to perform precise code search from user intent rather than simple keyword match. 
+Its corresponding real-life application is to perform precise code search from user intent rather than simple keyword match.
 
 > [!Important]
 >
@@ -47,7 +47,7 @@ Its corresponding real-life application is to perform precise code search from u
 > 2. A NL description of the needle function without revealing keywords like function names
 > 3. An instruction to retrieve the described function
 >
-> The evaluator passes a test if the searched function is syntactically closest to the ground-truth compared against 
+> The evaluator passes a test if the searched function is syntactically closest to the ground-truth compared against
 > other functions (systematically parsed by `treesitter`) and the similarity is greater than a user defined threshold (by default 0.8).
 
 You can run the SNF evaluation using various backends.
@@ -56,7 +56,7 @@ You can run the SNF evaluation using various backends.
 >
 > All evaluation can be performed in one just command.
 >
-> As a reference of evaluation time, it takes 30 minutes to evaluate a 7B model using two A6000s.
+> As a reference of evaluation time, it takes one hour to evaluate a 7B model using two A6000s.
 
 ### OpenAI Compatible Servers
 

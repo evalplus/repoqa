@@ -5,10 +5,11 @@
 from typing import List
 
 import torch
+from stop_sequencer import StopSequencer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from repoqa.provider.base import BaseProvider
-from repoqa.provider.request import construct_message_list
+from repoqa.provider.request import construct_message_list, hacky_assistant_stop_seq
 
 
 class HfProvider(BaseProvider):
@@ -17,16 +18,35 @@ class HfProvider(BaseProvider):
         self.hf_model = AutoModelForCausalLM.from_pretrained(
             model, trust_remote_code=trust_remote_code
         ).cuda()
+        self.stop_sequencer = StopSequencer(
+            model,
+            model_type="causal",  # or seq2seq
+            tokenizer=self.tokenizer,
+        )
+        self.stop_seq = []
+        if self.tokenizer.chat_template:
+            self.stop_seq.append(hacky_assistant_stop_seq(self.tokenizer))
 
     @torch.inference_mode()
     def generate_reply(
-        self, question, n=1, max_tokens=1024, temperature=0, system_msg=None
+        self, question, n=1, max_tokens=1024, temperature=0.0, system_msg=None
     ) -> List[str]:
         assert temperature != 0 or n == 1, "n must be 1 when temperature is 0"
+
         prompt_tokens = self.tokenizer.apply_chat_template(
-            construct_message_list(question, system_msg), return_tensors="pt"
+            construct_message_list(question, system_msg),
+            return_tensors="pt",
+            add_generation_prompt=True,
         ).cuda()
-        output_text = self.hf_model.generate(
+
+        model = self.hf_model
+        if self.stop_seq:
+            model = self.stop_sequencer.register_stop_texts(
+                stop_texts=self.stop_seq,
+                input_length=prompt_tokens.size(-1),
+            )
+
+        output_text = model.generate(
             input_ids=prompt_tokens,
             max_new_tokens=max_tokens,
             num_return_sequences=n,
