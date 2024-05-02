@@ -54,9 +54,12 @@ You can run the SNF evaluation using various backends.
 
 > [!Note]
 >
-> All evaluation can be performed in one just command.
+> All evaluation can be performed in just **one command** 🚀.
 >
-> As a reference of evaluation time, it takes one hour to evaluate a 7B model using two A6000s.
+> Reference evaluation time:
+>
+> * Llama3-8B-Instruct: 45 minutes on 2xA6000 (PCIe NVLink)
+> * Llama3-70B-Instruct: 100 minutes on 4xA100 (PCIe NVLink)
 
 ### OpenAI Compatible Servers
 
