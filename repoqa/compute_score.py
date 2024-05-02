@@ -62,8 +62,8 @@ def estimate_pass_at_k(
 
 
 def sanitize_output(model_output: str, lang: str) -> str:
-    search_pattern = r"```(.*?)```"
-    code_blocks = re.findall(search_pattern, model_output, re.DOTALL)
+    search_pattern = r"^```(?:\w+)?\s*\n(.*?)(?=^```)```"
+    code_blocks = re.findall(search_pattern, model_output, re.DOTALL | re.MULTILINE)
 
     parser = get_parser(lang)
     fn_query = get_language(lang).query(FUNCTION_QUERY[lang])
@@ -74,11 +74,6 @@ def sanitize_output(model_output: str, lang: str) -> str:
 
     processed_blocks = []
     for block in code_blocks:
-        # Clean up language specific markdown blocks
-        lines = block.split("\n")
-        if lines[0] == lang:
-            block = "\n".join(lines[1:])
-
         processed_blocks.append(block)
 
         # Try to use tree-sitter to parse if possible
