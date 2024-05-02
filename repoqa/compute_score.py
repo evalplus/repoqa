@@ -190,6 +190,23 @@ def compute_language_results(evaluation_result: Dict, all_results: Dict) -> None
 
 
 def fetch_hf_context(model_name: str) -> str:
+    # Retrieved from https://github.com/vllm-project/vllm/blob/main/vllm/config.py#L1073
+    possible_keys = [
+        # OPT
+        "max_position_embeddings",
+        # GPT-2
+        "n_positions",
+        # MPT
+        "max_seq_len",
+        # ChatGLM2
+        "seq_length",
+        # Command-R
+        "model_max_length",
+        # Others
+        "max_sequence_length",
+        "max_seq_length",
+        "seq_len",
+    ]
     try:
         with tempdir.TempDir() as temp_dir:
             config = AutoConfig.from_pretrained(
@@ -198,7 +215,13 @@ def fetch_hf_context(model_name: str) -> str:
                 force_download=True,
                 trust_remote_code=True,
             ).to_dict()
-            return str(int(config["max_position_embeddings"] / 1024)) + "k"
+            longest_context = 0
+            for key in possible_keys:
+                if key in config:
+                    longest_context = max(config[key], longest_context)
+            if not (longest_context):
+                return "N/A"
+            return str(int(longest_context / 1024)) + "k"
     except Exception as err:
         print(f"fetching failed due to {err}")
         return "N/A"
