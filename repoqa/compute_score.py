@@ -21,7 +21,7 @@ from tree_sitter_languages import get_language, get_parser
 
 from repoqa.data import get_repoqa_data
 from repoqa.metric import compute_function_similarity
-from repoqa.utility import FUNCTION_QUERY, progress
+from repoqa.utility import COMMENT_QUERY, FUNCTION_QUERY, progress
 
 LANGUAGES = list(FUNCTION_QUERY.keys())
 THRESHOLDS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -59,6 +59,26 @@ def estimate_pass_at_k(
     return np.array(
         [estimator(int(n), int(c), k) for n, c in zip(num_samples_it, num_correct)]
     )
+
+
+def remove_comments(source_code: str, lang: str) -> str:
+    source_bytes = bytes(source_code, "utf8")
+    parser = get_parser(lang)
+    tree = parser.parse(source_bytes)
+    root_node = tree.root_node
+
+    # Remove comments from source code
+    capture_list = []
+    for query_str in COMMENT_QUERY[lang]:
+        comment_query = get_language(lang).query(query_str)
+        capture_list += comment_query.captures(root_node)
+
+    capture_list.sort(key=lambda cap: cap[0].start_byte, reverse=True)
+
+    for node, _ in capture_list:
+        source_bytes = source_bytes[: node.start_byte] + source_bytes[node.end_byte :]
+
+    return source_bytes.decode("utf-8")
 
 
 def sanitize_output(model_output: str, lang: str) -> str:
@@ -139,6 +159,7 @@ def needle_evaluator(
     best_target = None
     best_similarity = 0
     sanitized_output = sanitize_output(model_output, lang)
+    sanitized_output = remove_comments(sanitized_output, lang)
     for needle in needles:
         current_path = needle["path"]
         current_name = needle["name"]
@@ -147,6 +168,7 @@ def needle_evaluator(
                 needle["start_line"] : needle["end_line"]
             ]
         )
+        current_func = remove_comments(current_func, lang)
 
         current_similarity = compute_function_similarity(sanitized_output, current_func)
         if current_similarity > best_similarity:
