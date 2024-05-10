@@ -113,6 +113,7 @@ repoqa.search_needle_function --model "gemini-1.5-pro-latest" --backend google
 >   - `--tensor-parallel-size`: #GPUS for doing tensor parallelism (only for vLLM)
 >   - `--languages` (default: None): List of languages to evaluate (None means all)
 >   - `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
+>   - `--ignore-results` (default: False): During evaluation, ignore groundtruth and model comments
 >   - `--trust-remote-code` (default: False): allow remote code (for HuggingFace transformers and vLLM)
 > - **Output**:
 >   - `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs

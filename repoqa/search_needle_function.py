@@ -166,6 +166,7 @@ def evaluate_model(
     caching: bool = True,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
+    ignore_comments: bool = False,
     trust_remote_code: bool = False,
 ):
     if backend is None:
@@ -357,7 +358,7 @@ def evaluate_model(
 
     file_base, _ = os.path.splitext(model_output_path)
     result_path = file_base + "-SCORES.json"
-    output_json = compute_score(model, dataset, model_outputs)
+    output_json = compute_score(model, dataset, model_outputs, ignore_comments)
     save_json(output_json, result_path)
 
 
