@@ -16,6 +16,7 @@ FUNCTION_QUERY = {
     "typescript": "(function_declaration name: (_)) @fdef",
     "rust": "(function_item name: (_)) @fdef",
     "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
+    "go": "(function_declaration name: (_)) @fdef",
 }
 
 COMMENT_QUERY = {
@@ -27,6 +28,7 @@ COMMENT_QUERY = {
     "cpp": ["(comment) @comment"],
     "rust": ["(line_comment) @comment", "(block_comment) @comment"],
     "typescript": ["(comment) @comment"],
+    "go": ["(comment) @comment"],
 }
 
 
