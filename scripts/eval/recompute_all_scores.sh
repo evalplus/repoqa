@@ -16,5 +16,5 @@ for path in "$(pwd)"/results/**/*.jsonl; do
         echo "File size is less than 10MB. Skipping..."
         continue
     fi
-    yes | python repoqa/compute_score.py --dataset-path repoqa-2024-04-20.json --model-output-path $path
+    yes | python repoqa/compute_score.py --model-output-path $path
 done
