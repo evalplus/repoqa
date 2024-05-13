@@ -62,6 +62,7 @@ def estimate_pass_at_k(
 
 
 def sanitize_output(model_output: str, lang: str) -> str:
+    model_output = model_output.strip()
     search_pattern = r"^```(?:\w+)?\s*\n(.*?)(?=^```)```"
     code_blocks = re.findall(search_pattern, model_output, re.DOTALL | re.MULTILINE)
 
@@ -223,7 +224,7 @@ def fetch_hf_context(model_name: str) -> str:
                 return "N/A"
             return str(int(longest_context / 1024)) + "k"
     except Exception as err:
-        print(f"fetching failed due to {err}")
+        print(f"fetching failed... Reason:\n{err}")
         return "N/A"
 
 
