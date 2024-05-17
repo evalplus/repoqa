@@ -348,6 +348,8 @@ def evaluate_model(
                 for key in task["template"].split("\n"):
                     prompt += task[key]
 
+                prompt = prompt.replace('\0', '')
+
                 replies = engine.generate_reply(
                     prompt, n=1, max_tokens=max_new_tokens, system_msg=system_message
                 )
