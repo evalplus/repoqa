@@ -40,10 +40,11 @@ class HfProvider(BaseProvider):
         ).cuda()
 
         model = self.hf_model
+        input_length = prompt_tokens.size(-1)
         if self.stop_seq:
             model = self.stop_sequencer.register_stop_texts(
                 stop_texts=self.stop_seq,
-                input_length=prompt_tokens.size(-1),
+                input_length=input_length,
             )
 
         output_text = model.generate(
@@ -57,7 +58,9 @@ class HfProvider(BaseProvider):
 
         gen_strs = [
             self.tokenizer.decode(
-                x, skip_special_tokens=True, clean_up_tokenization_spaces=False
+                x[input_length:],
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
             )
             for x in output_text
         ]
