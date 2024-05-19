@@ -43,6 +43,7 @@ Its corresponding real-life application is to perform precise code search from u
 > [!Important]
 >
 > SNF includes 500 tests (5 programming languages x 10 repositories x 10 needle functions) where an LLM is given:
+>
 > 1. A large code context sorted in file dependency
 > 2. A NL description of the needle function without revealing keywords like function names
 > 3. An instruction to retrieve the described function
@@ -88,8 +89,8 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 >
 > Reference evaluation time:
 >
-> * Llama3-8B-Instruct: 45 minutes on 2xA6000 (PCIe NVLink)
-> * Llama3-70B-Instruct: 100 minutes on 4xA100 (PCIe NVLink)
+> - Llama3-8B-Instruct: 45 minutes on 2xA6000 (PCIe NVLink)
+> - Llama3-70B-Instruct: 100 minutes on 4xA100 (PCIe NVLink)
 
 ### HuggingFace transformers
 
@@ -118,6 +119,7 @@ repoqa.search_needle_function --model "gemini-1.5-pro-latest" --backend google
   - `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
   - `--ignore-comments` (default: False): During evaluation, ignore groundtruth and model comments
   - `--trust-remote-code` (default: False): allow remote code (for HuggingFace transformers and vLLM)
+  - `--attn-implementation` (default: None): Use "flash_attention_2" if your HF hits OOM
 - **Output**:
   - `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
   - `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation results

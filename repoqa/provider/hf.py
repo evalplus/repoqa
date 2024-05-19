@@ -13,13 +13,16 @@ from repoqa.provider.request import construct_message_list, hacky_assistant_stop
 
 
 class HfProvider(BaseProvider):
-    def __init__(self, model, trust_remote_code=False):
+    def __init__(self, model, trust_remote_code=False, attn_implementation=None):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
         self.hf_model = AutoModelForCausalLM.from_pretrained(
-            model, trust_remote_code=trust_remote_code
+            model,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+            torch_dtype="auto",
         ).cuda()
         self.stop_sequencer = StopSequencer(
-            model,
+            self.hf_model,
             model_type="causal",  # or seq2seq
             tokenizer=self.tokenizer,
         )
@@ -39,21 +42,26 @@ class HfProvider(BaseProvider):
             add_generation_prompt=True,
         ).cuda()
 
-        model = self.hf_model
+        hf_model = self.hf_model
         input_length = prompt_tokens.size(-1)
         if self.stop_seq:
-            model = self.stop_sequencer.register_stop_texts(
+            hf_model = self.stop_sequencer.register_stop_texts(
                 stop_texts=self.stop_seq,
                 input_length=input_length,
             )
 
-        output_text = model.generate(
+        gen_args = {"do_sample": False}
+        if temperature > 0:
+            gen_args["do_sample"] = True
+            gen_args["temperature"] = temperature
+
+        output_text = hf_model.generate(
             input_ids=prompt_tokens,
             max_new_tokens=max_tokens,
             num_return_sequences=n,
-            temperature=temperature,
             pad_token_id=self.tokenizer.eos_token_id,
             use_cache=True,
+            **gen_args,
         )
 
         gen_strs = [

@@ -29,6 +29,7 @@ INSTRUCTION = (
     " please retrieve and repeat the exact described function from the code context in a code block wrapped by ```:"
 )
 
+
 # Count number of tokens ignoring null byte (used for obfuscate-nl)
 def count_tokens(tokens: List[str]) -> int:
     return len([x for x in tokens if x != "<0x00>"])
@@ -178,6 +179,7 @@ def evaluate_model(
     dataset_path: str = None,
     ignore_comments: bool = False,
     trust_remote_code: bool = False,
+    attn_implementation=None,
 ):
     if backend is None:
         if base_url is not None:
@@ -332,7 +334,11 @@ def evaluate_model(
     elif backend == "hf":
         from repoqa.provider.hf import HfProvider
 
-        engine = HfProvider(model, trust_remote_code=trust_remote_code)
+        engine = HfProvider(
+            model,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+        )
     elif backend == "google":
         from repoqa.provider.google import GoogleProvider
 
