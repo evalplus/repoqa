@@ -31,9 +31,8 @@ class GoogleProvider(BaseProvider):
             system_msg=system_msg,
         )
 
-        assert (
-            len(replies.candidates) == n
-        ), f"# replies = {len(replies.candidates)} != {n = }"
+        if len(replies.candidates) != n:
+            print(f"[WARNING] # replies = {len(replies.candidates)} != {n = }")
 
         ret_texts = []
         for candidate in replies.candidates:
@@ -45,4 +44,4 @@ class GoogleProvider(BaseProvider):
                 ret_texts.append("")
                 print(f"{candidate.safety_ratings = }")
 
-        return ret_texts
+        return ret_texts + [""] * (n - len(ret_texts))
