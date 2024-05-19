@@ -58,7 +58,6 @@ def main(
                 for path, abspath in files_to_include:
                     with open(abspath, "r") as f:
                         repo["content"][path] = f.read()
-
     with open(target_path, "w") as f_out:
         json.dump(lists, f_out)
 
