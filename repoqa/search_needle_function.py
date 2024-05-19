@@ -29,6 +29,10 @@ INSTRUCTION = (
     " please retrieve and repeat the exact described function from the code context in a code block wrapped by ```:"
 )
 
+# Count number of tokens ignoring null byte (used for obfuscate-nl)
+def count_tokens(tokens: List[str]) -> int:
+    return len([x for x in tokens if x != "<0x00>"])
+
 
 def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
     """Return the text and tokens from bottom to top"""
@@ -36,7 +40,7 @@ def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
     ntokens = 0
     is_break = False
     for line in reversed(lines):
-        new_ntokens = len(tokenizer.tokenize(line + "\n"))
+        new_ntokens = count_tokens(tokenizer.tokenize(line + "\n"))
         if ntokens + new_ntokens > max_tokens:
             is_break = True
             break
@@ -51,7 +55,7 @@ def _forward_tokenizable_lines(lines, tokenizer, max_tokens):
     ntokens = 0
     is_break = False
     for line in lines:
-        new_ntokens = len(tokenizer.tokenize(line + "\n"))
+        new_ntokens = count_tokens(tokenizer.tokenize(line + "\n"))
         if ntokens + new_ntokens > max_tokens:
             is_break = True
             break
@@ -59,7 +63,7 @@ def _forward_tokenizable_lines(lines, tokenizer, max_tokens):
         ntokens += new_ntokens
     if is_break:
         text = text + "...\n"
-        ntokens += len(tokenizer.tokenize("...\n"))
+        ntokens += count_tokens(tokenizer.tokenize("...\n"))
     return text, ntokens, is_break
 
 
@@ -87,7 +91,7 @@ def make_code_context(
     ][0]
 
     needle_code = needle_file_content[needle["start_byte"] : needle["end_byte"]]
-    ntoken_needle = len(tokenizer.tokenize(needle_code))
+    ntoken_needle = count_tokens(tokenizer.tokenize(needle_code))
 
     prefix_size = int(code_context_size * position_ratio - ntoken_needle / 2)
     suffix_size = code_context_size - ntoken_needle - prefix_size
@@ -133,7 +137,13 @@ def make_code_context(
         suffix_size -= ntokens
         index += 1
 
+    # Remove all null characters from all three portions (obfuscate-nl)
+    code_prefix = code_prefix.replace("\0", "")
+    needle_code = needle_code.replace("\0", "")
+    code_suffix = code_suffix.replace("\0", "")
+
     code_context = code_prefix + needle_code + code_suffix
+
     needle_token_start = len(tokenizer.tokenize(code_prefix))
     needle_token_end = needle_token_start + len(tokenizer.tokenize(needle_code))
     code_context_ntokens = needle_token_end + len(tokenizer.tokenize(code_suffix))
@@ -347,8 +357,6 @@ def evaluate_model(
                 prompt = ""
                 for key in task["template"].split("\n"):
                     prompt += task[key]
-
-                prompt = prompt.replace('\0', '')
 
                 replies = engine.generate_reply(
                     prompt, n=1, max_tokens=max_new_tokens, system_msg=system_message

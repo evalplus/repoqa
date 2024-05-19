@@ -31,6 +31,29 @@ COMMENT_QUERY = {
     "go": ["(comment) @comment"],
 }
 
+FUNCTION_NAME_QUERY = {
+    "python": """
+        ((function_definition
+          name: (identifier) @function_name))
+    """,
+    "java": """
+        (method_declaration
+          name: (identifier) @method_name)
+    """,
+    "typescript": """
+        (function_declaration
+          name: (identifier) @function_name)
+    """,
+    "rust": """
+        (function_item
+          name: (identifier) @function_name)
+    """,
+    "cpp": """
+        (function_definition
+          name: (identifier) @function_name)
+    """,
+}
+
 
 def topological_sort(graph):
     # Stack to store the topological order
