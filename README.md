@@ -75,10 +75,10 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 
 > [!Tip]
 >
-> You can unlock the model's context using dynamic RoPE scaling.
+> You can unlock the model's context using [dynamic RoPE scaling](https://blog.eleuther.ai/yarn/#dynamic-scaling).
 > For example, `Meta-Llama-3-8B-Instruct` has 8k context but running the default 16k test needs more (approx. 20k).
 >
-> To extend the context to 32k, edit its config file (`hub/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/[hash]/config.json`) by setting:
+> To extend the context to 32k, in its config file (`hub/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/[hash]/config.json`) set:
 >
 > `"rope_scaling": {"type": "dynamic", "factor": 4.0}`
 >
