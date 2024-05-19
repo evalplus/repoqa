@@ -328,7 +328,7 @@ def compute_score(
             train_context = "16k"
         else:
             train_context = fetch_hf_context(model_name)
-    elif model_name.startswith("gpt-4-turbo"):
+    elif model_name.startswith("gpt-4-turbo") or model_name.startswith("gpt-4o-"):
         train_context = "128k"
     elif model_name.startswith("gpt-3.5-"):
         train_context = "16k"
