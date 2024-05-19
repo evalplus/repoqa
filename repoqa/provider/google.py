@@ -31,6 +31,10 @@ class GoogleProvider(BaseProvider):
             system_msg=system_msg,
         )
 
+        assert (
+            len(replies.candidates) == n
+        ), f"# replies = {len(replies.candidates)} != {n = }"
+
         ret_texts = []
         for candidate in replies.candidates:
             parts = candidate.content.parts
@@ -38,7 +42,7 @@ class GoogleProvider(BaseProvider):
                 ret_texts.append(parts[0].text)
             else:
                 print("Empty response!")
-                print(f"{candidate.safety_ratings = }")
                 ret_texts.append("")
+                print(f"{candidate.safety_ratings = }")
 
         return ret_texts

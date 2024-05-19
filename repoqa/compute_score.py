@@ -332,7 +332,9 @@ def compute_score(
         train_context = "128k"
     elif model_name.startswith("gpt-3.5-"):
         train_context = "16k"
-    elif model_name.startswith("gemini-1.5-pro"):
+    elif model_name.startswith("gemini-1.5-pro") or model_name.startswith(
+        "gemini-1.5-flash"
+    ):
         train_context = "1000k"
     elif model_name.startswith("gemini-1.0-pro"):
         train_context = "32k"
