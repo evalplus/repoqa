@@ -82,6 +82,17 @@ repoqa.search_needle_function --model "claude-3-haiku-20240307" --backend anthro
 repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 ```
 
+> [!Tip]
+>
+> You can unlock the model's context using dynamic RoPE scaling.
+> For example,  `CodeLlama-13b-Instruct-hf` has 16k context but running the default 16k test needs more (approx. 20k).
+>
+> To double its 16k context to 32k, you can edit its config file (`hub/models--codellama--CodeLlama-34b-Instruct-hf/snapshots/[hash]/config.json`) by setting:
+>
+> `"rope_scaling": {"type": "dynamic", "factor": 2.0}`
+>
+> Note: This works for vLLM `<0.4.3` and HuggingFace transformers. RepoQA will automatically configure dynamic RoPE for vLLM `>= 0.4.3`
+
 ### HuggingFace transformers
 
 ```bash
