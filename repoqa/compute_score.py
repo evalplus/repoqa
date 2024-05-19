@@ -21,7 +21,7 @@ from tree_sitter_languages import get_language, get_parser
 
 from repoqa.data import get_repoqa_data
 from repoqa.metric import compute_function_similarity
-from repoqa.utility import FUNCTION_QUERY, progress
+from repoqa.utility import COMMENT_QUERY, FUNCTION_QUERY, progress
 
 LANGUAGES = list(FUNCTION_QUERY.keys())
 THRESHOLDS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -59,6 +59,26 @@ def estimate_pass_at_k(
     return np.array(
         [estimator(int(n), int(c), k) for n, c in zip(num_samples_it, num_correct)]
     )
+
+
+def remove_comments(source_code: str, lang: str) -> str:
+    source_bytes = bytes(source_code, "utf8")
+    parser = get_parser(lang)
+    tree = parser.parse(source_bytes)
+    root_node = tree.root_node
+
+    # Remove comments from source code
+    capture_list = []
+    for query_str in COMMENT_QUERY[lang]:
+        comment_query = get_language(lang).query(query_str)
+        capture_list += comment_query.captures(root_node)
+
+    capture_list.sort(key=lambda cap: cap[0].start_byte, reverse=True)
+
+    for node, _ in capture_list:
+        source_bytes = source_bytes[: node.start_byte] + source_bytes[node.end_byte :]
+
+    return source_bytes.decode("utf-8")
 
 
 def sanitize_output(model_output: str, lang: str) -> str:
@@ -132,7 +152,11 @@ def print_result_table(model_name, pass_results):
 
 
 def needle_evaluator(
-    model_output: str, ground_truth: str, repo_info: Dict, lang: str
+    model_output: str,
+    ground_truth: str,
+    repo_info: Dict,
+    lang: str,
+    ignore_comments: bool,
 ) -> Tuple[Result, str, float]:
     contents = repo_info["content"]
     needles = repo_info["needles"]
@@ -140,6 +164,8 @@ def needle_evaluator(
     best_target = None
     best_similarity = 0
     sanitized_output = sanitize_output(model_output, lang)
+    if ignore_comments:
+        sanitized_output = remove_comments(sanitized_output, lang)
     for needle in needles:
         current_path = needle["path"]
         current_name = needle["name"]
@@ -148,6 +174,8 @@ def needle_evaluator(
                 needle["start_line"] : needle["end_line"]
             ]
         )
+        if ignore_comments:
+            current_func = remove_comments(current_func, lang)
 
         current_similarity = compute_function_similarity(sanitized_output, current_func)
         if current_similarity > best_similarity:
@@ -228,7 +256,9 @@ def fetch_hf_context(model_name: str) -> str:
         return "N/A"
 
 
-def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> Dict:
+def compute_score(
+    model_name: str, dataset: Dict, model_output: List[Dict], ignore_comments: bool
+) -> Dict:
     evaluation_result = defaultdict(list)
     with progress(f"Scoring {model_name}") as pbar:
         for result in pbar.track(model_output):
@@ -240,7 +270,7 @@ def compute_score(model_name: str, dataset: Dict, model_output: List[Dict]) -> D
 
             model_output = model_outputs[0]
             verdict, best_target, best_similarity = needle_evaluator(
-                model_output, ground_truth, repo_info, lang
+                model_output, ground_truth, repo_info, lang, ignore_comments
             )
 
             is_best_similar = False
@@ -351,7 +381,9 @@ def save_json(output_json, result_path) -> None:
             json.dump(output_json, f)
 
 
-def compute_main(model_output_path: str, dataset_path: str = None):
+def compute_main(
+    model_output_path: str, ignore_comments: bool = False, dataset_path: str = None
+):
     if dataset_path is None:
         dataset = get_repoqa_data()
     else:
@@ -366,7 +398,7 @@ def compute_main(model_output_path: str, dataset_path: str = None):
     file_base, _ = os.path.splitext(model_output_path)
     result_path = file_base + "-SCORES.json"
     model_name = get_model_name(model_output_path)
-    output_json = compute_score(model_name, dataset, model_outputs)
+    output_json = compute_score(model_name, dataset, model_outputs, ignore_comments)
     save_json(output_json, result_path)
 
 
