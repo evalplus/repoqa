@@ -50,16 +50,7 @@ Its corresponding real-life application is to perform precise code search from u
 > The evaluator passes a test if the searched function is syntactically closest to the ground-truth compared against
 > other functions (systematically parsed by `treesitter`) and the similarity is greater than a user defined threshold (by default 0.8).
 
-You can run the SNF evaluation using various backends.
-
-> [!Note]
->
-> All evaluation can be performed in just **one command** 🚀.
->
-> Reference evaluation time:
->
-> * Llama3-8B-Instruct: 45 minutes on 2xA6000 (PCIe NVLink)
-> * Llama3-70B-Instruct: 100 minutes on 4xA100 (PCIe NVLink)
+You can run the SNF evaluation using various backends:
 
 ### OpenAI Compatible Servers
 
@@ -85,13 +76,20 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 > [!Tip]
 >
 > You can unlock the model's context using dynamic RoPE scaling.
-> For example,  `CodeLlama-13b-Instruct-hf` has 16k context but running the default 16k test needs more (approx. 20k).
+> For example, `Meta-Llama-3-8B-Instruct` has 8k context but running the default 16k test needs more (approx. 20k).
 >
-> To double its 16k context to 32k, you can edit its config file (`hub/models--codellama--CodeLlama-34b-Instruct-hf/snapshots/[hash]/config.json`) by setting:
+> To extend the context to 32k, edit its config file (`hub/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/[hash]/config.json`) by setting:
 >
-> `"rope_scaling": {"type": "dynamic", "factor": 2.0}`
+> `"rope_scaling": {"type": "dynamic", "factor": 4.0}`
 >
 > Note: This works for vLLM `<0.4.3` and HuggingFace transformers. RepoQA will automatically configure dynamic RoPE for vLLM `>= 0.4.3`
+
+> [!Note]
+>
+> Reference evaluation time:
+>
+> * Llama3-8B-Instruct: 45 minutes on 2xA6000 (PCIe NVLink)
+> * Llama3-70B-Instruct: 100 minutes on 4xA100 (PCIe NVLink)
 
 ### HuggingFace transformers
 
@@ -105,30 +103,24 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend hf --
 repoqa.search_needle_function --model "gemini-1.5-pro-latest" --backend google
 ```
 
-> [!Tip]
->
-> To evaluate models whose context size is smaller than the prompt, you can edit the `config.json` file to modify `max_position_embeddings` for the model in HuggingFace cache directory.
+### CLI Usage
 
-### Usage
-
-> [!Tip]
->
-> - **Input**:
->   - `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
->   - `--backend`: `vllm` (default) or `openai`
->   - `--base-url`: OpenAI API base URL
->   - `--code-context-size` (default: 16384): #tokens (by DeepSeekCoder tokenizer) of repository context
->   - `--caching` (default: True): accelerate subsequent runs by caching preprocessing; `--nocaching` to disable
->   - `--max-new-tokens` (default: 1024): Maximum #new tokens to generate
->   - `--system-message` (default: None): system message (note it's not supported by some models)
->   - `--tensor-parallel-size`: #GPUS for doing tensor parallelism (only for vLLM)
->   - `--languages` (default: None): List of languages to evaluate (None means all)
->   - `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
->   - `--ignore-comments` (default: False): During evaluation, ignore groundtruth and model comments
->   - `--trust-remote-code` (default: False): allow remote code (for HuggingFace transformers and vLLM)
-> - **Output**:
->   - `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
->   - `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation results
+- **Input**:
+  - `--model`: Hugging-Face model ID, such as `ise-uiuc/Magicoder-S-DS-6.7B`
+  - `--backend`: `vllm` (default) or `openai`
+  - `--base-url`: OpenAI API base URL
+  - `--code-context-size` (default: 16384): #tokens (by DeepSeekCoder tokenizer) of repository context
+  - `--caching` (default: True): accelerate subsequent runs by caching preprocessing; `--nocaching` to disable
+  - `--max-new-tokens` (default: 1024): Maximum #new tokens to generate
+  - `--system-message` (default: None): system message (note it's not supported by some models)
+  - `--tensor-parallel-size`: #GPUS for doing tensor parallelism (only for vLLM)
+  - `--languages` (default: None): List of languages to evaluate (None means all)
+  - `--result-dir` (default: "results"): Directory to save the model outputs and evaluation results
+  - `--ignore-comments` (default: False): During evaluation, ignore groundtruth and model comments
+  - `--trust-remote-code` (default: False): allow remote code (for HuggingFace transformers and vLLM)
+- **Output**:
+  - `results/ntoken_{code-context-size}/{model}.jsonl`: Model generated outputs
+  - `results/ntoken_{code-context-size}/{model}-SCORE.json`: Evaluation results
 
 ### Compute Scores
 
