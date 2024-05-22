@@ -15,7 +15,9 @@ class VllmProvider(BaseProvider):
     def __init__(
         self, model, tensor_parallel_size, max_model_len=None, trust_remote_code=False
     ):
-        self.tokenizer = AutoTokenizer.from_pretrained(model)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model, trust_remote_code=trust_remote_code
+        )
         self.llm = LLM(
             model=model,
             tensor_parallel_size=tensor_parallel_size,

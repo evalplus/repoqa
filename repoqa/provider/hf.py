@@ -14,7 +14,9 @@ from repoqa.provider.request import construct_message_list, hacky_assistant_stop
 
 class HfProvider(BaseProvider):
     def __init__(self, model, trust_remote_code=False, attn_implementation=None):
-        self.tokenizer = AutoTokenizer.from_pretrained(model)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model, trust_remote_code=trust_remote_code
+        )
         self.hf_model = AutoModelForCausalLM.from_pretrained(
             model,
             trust_remote_code=trust_remote_code,
