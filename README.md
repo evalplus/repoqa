@@ -83,8 +83,6 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 <details><summary>🔎 Context extension for small-ctx models <i>:: click to expand ::</i></summary>
 <div>
 
-> [!Tip]
->
 > There are two ways to unlock a model's context at inference time:
 >
 > 1. **Direct Extension**: Edit `max_positional_embedding` of the model's `config.json` (e.g., `hub/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/[hash]/config.json`) to something like `22528`.
@@ -120,12 +118,10 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend hf --
 <details><summary>🔨 Having trouble installing `flash-attn`? <i>:: click to expand ::</i></summary>
 <div>
 
-> [!Tip]
->
 > If you have trouble with `pip install flash-attn --no-build-isolation`,
 > you can try to directly use [pre-built wheels](https://github.com/Dao-AILab/flash-attention/releases):
 >
-> ```
+> ```shell
 > export FLASH_ATTN_VER=2.5.8 # check latest version at https://github.com/Dao-AILab/flash-attention/releases
 > export CUDA_VER="cu122"     # check available ones at https://github.com/Dao-AILab/flash-attention/releases
 > export TORCH_VER=$(python -c "import torch; print('.'.join(torch.__version__.split('.')[:2]))")
