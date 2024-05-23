@@ -37,12 +37,15 @@ pip install -r requirements.txt
 
 ## 🏁 Search Needle Function (SNF)
 
-Search Needle Function is the first RepoQA task which aims to practice LLMs' ability of **long-context code understanding and retrieval**.
-Its corresponding real-life application is to perform precise code search from user intent rather than simple keyword match.
+Search Needle Function is the first and base RepoQA task which aims to practice LLMs' ability of **long-context code understanding and retrieval**.
+Its corresponding real-life scenario is to perform precise code search from function description.
 
-> [!Important]
+<details><summary>🔎 More dataset details <i>:: click to expand ::</i></summary>
+<div>
+
+> [!Note]
 >
-> SNF includes 500 tests (5 programming languages x 10 repositories x 10 needle functions) where an LLM is given:
+> SNF includes 500 tests (5 programming languages x 10 repos x 10 needle functions) where an LLM is given:
 >
 > 1. A large code context sorted in file dependency
 > 2. A NL description of the needle function without revealing keywords like function names
@@ -50,6 +53,9 @@ Its corresponding real-life application is to perform precise code search from u
 >
 > The evaluator passes a test if the searched function is syntactically closest to the ground-truth compared against
 > other functions (systematically parsed by `treesitter`) and the similarity is greater than a user defined threshold (by default 0.8).
+
+</div>
+</details>
 
 You can run the SNF evaluation using various backends:
 
@@ -74,16 +80,23 @@ repoqa.search_needle_function --model "claude-3-haiku-20240307" --backend anthro
 repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 ```
 
+<details><summary>🔎 Context extension for small-ctx models <i>:: click to expand ::</i></summary>
+<div>
+
 > [!Tip]
 >
-> You can unlock the model's context using [dynamic RoPE scaling](https://blog.eleuther.ai/yarn/#dynamic-scaling).
-> For example, `Meta-Llama-3-8B-Instruct` has 8k context but running the default 16k test needs more (approx. 20k).
+> There are two ways to unlock a model's context at inference time:
 >
-> To extend the context to 32k, in its config file (`hub/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/[hash]/config.json`) set:
+> 1. **Direct Extension**: Edit `max_positional_embedding` of the model's `config.json` (e.g., `hub/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/[hash]/config.json`) to something like `22528`.
+> 2. **[Dynamic RoPE Scaling](https://blog.eleuther.ai/yarn/#dynamic-scaling)**:
+>    To extend `Meta-Llama-3-8B-Instruct` from 8k to 32k (4x), edit the `config.json`:
 >
 > `"rope_scaling": {"type": "dynamic", "factor": 4.0}`
 >
 > Note: This works for vLLM `<0.4.3` and HuggingFace transformers. RepoQA will automatically configure dynamic RoPE for vLLM `>= 0.4.3`
+
+</div>
+</details>
 
 > [!Note]
 >
@@ -97,6 +110,35 @@ repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend vllm
 ```bash
 repoqa.search_needle_function --model "Qwen/CodeQwen1.5-7B-Chat" --backend hf --trust-remote-code
 ```
+
+> [!Tip]
+>
+> Installing [flash-attn](https://github.com/Dao-AILab/flash-attention) and
+> additionally set `--attn-implementation "flash_attention_2"` can largely
+> lower the memory requirement.
+
+<details><summary>🔨 Having trouble installing `flash-attn`? <i>:: click to expand ::</i></summary>
+<div>
+
+> [!Tip]
+>
+> If you have trouble with `pip install flash-attn --no-build-isolation`,
+> you can try to directly use [pre-built wheels](https://github.com/Dao-AILab/flash-attention/releases):
+>
+> ```
+> export FLASH_ATTN_VER=2.5.8 # check latest version at https://github.com/Dao-AILab/flash-attention/releases
+> export CUDA_VER="cu122"     # check available ones at https://github.com/Dao-AILab/flash-attention/releases
+> export TORCH_VER=$(python -c "import torch; print('.'.join(torch.__version__.split('.')[:2]))")
+> export PY_VER=$(python -c "import platform; print(''.join(platform.python_version().split('.')[:2]))")
+> export OS_ARCH=$(python -c "import platform; print(f'{platform.system().lower()}_{platform.machine()}')")
+>
+> export WHEEL=flash_attn-${FLASH_ATTN_VER}+${CUDA_VER}torch${TORCH_VER}cxx11abiFALSE-cp${PY_VER}-cp${PY_VER}-${OS_ARCH}.whl
+> wget https://github.com/Dao-AILab/flash-attention/releases/download/v${FLASH_ATTN_VER}/${WHEEL}
+> pip install ${WHEEL}
+> ```
+
+</div>
+</details>
 
 ### Google Generative AI API (Gemini)
 
