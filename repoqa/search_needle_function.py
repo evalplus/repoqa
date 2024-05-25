@@ -7,10 +7,11 @@ import os
 from typing import List, Tuple
 
 from transformers import AutoTokenizer
+from tree_sitter_languages import get_language, get_parser
 
 from repoqa.compute_score import compute_score, save_json
 from repoqa.data import CACHE_DIR, get_repoqa_data
-from repoqa.utility import progress, topological_sort
+from repoqa.utility import COMMENT_QUERY, progress, topological_sort
 
 COMMENT_PREFIX = {
     "python": "#",
@@ -20,6 +21,8 @@ COMMENT_PREFIX = {
     "cpp": "//",
 }
 
+# Dummy padding for comment free
+DUMMY_PADDING = "dummy"
 
 # Model context below:
 TEMPLATE = "instruction\ncode_context\ndescription\ninstruction"
@@ -30,18 +33,13 @@ INSTRUCTION = (
 )
 
 
-# Count number of tokens ignoring null byte (used for obfuscate-nl)
-def count_tokens(tokens: List[str]) -> int:
-    return len([x for x in tokens if x != "<0x00>"])
-
-
 def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
     """Return the text and tokens from bottom to top"""
     text = ""
     ntokens = 0
     is_break = False
     for line in reversed(lines):
-        new_ntokens = count_tokens(tokenizer.tokenize(line + "\n"))
+        new_ntokens = len(tokenizer.tokenize(line + "\n"))
         if ntokens + new_ntokens > max_tokens:
             is_break = True
             break
@@ -56,7 +54,7 @@ def _forward_tokenizable_lines(lines, tokenizer, max_tokens):
     ntokens = 0
     is_break = False
     for line in lines:
-        new_ntokens = count_tokens(tokenizer.tokenize(line + "\n"))
+        new_ntokens = len(tokenizer.tokenize(line + "\n"))
         if ntokens + new_ntokens > max_tokens:
             is_break = True
             break
@@ -64,8 +62,174 @@ def _forward_tokenizable_lines(lines, tokenizer, max_tokens):
         ntokens += new_ntokens
     if is_break:
         text = text + "...\n"
-        ntokens += count_tokens(tokenizer.tokenize("...\n"))
+        ntokens += len(tokenizer.tokenize("...\n"))
     return text, ntokens, is_break
+
+
+def filter_path_comments(capture, context_paths, source_bytes, comment_prefix):
+    node, _ = capture
+    text = source_bytes[node.start_byte : node.end_byte]
+    for path in context_paths:
+        if text.decode("utf8") == comment_prefix + " Path: " + path:
+            return False
+    return True
+
+
+def clean_segment_comments(language, segment, context_paths):
+    source_bytes = bytes(segment, "utf8")
+    parser = get_parser(language)
+    tree = parser.parse(source_bytes)
+    root_node = tree.root_node
+
+    # Remove comments from source code
+    capture_list = []
+    for query_str in COMMENT_QUERY[language]:
+        comment_query = get_language(language).query(query_str)
+        capture_list += comment_query.captures(root_node)
+
+    # Filter out synethetic comments containing paths info
+    filtered_capture = list(
+        filter(
+            lambda capture: filter_path_comments(
+                capture, context_paths, source_bytes, COMMENT_PREFIX[language]
+            ),
+            capture_list,
+        )
+    )
+
+    filtered_capture.sort(key=lambda cap: cap[0].start_byte, reverse=True)
+
+    for node, _ in filtered_capture:
+        source_bytes = source_bytes[: node.start_byte] + source_bytes[node.end_byte :]
+
+    return source_bytes.decode("utf-8")
+
+
+# Clean partial context due to context construction
+def clean_partial_file(language, whole_file, partial_lines, path):
+    path_comment = f"{COMMENT_PREFIX[language]} Path: {path}\n"
+    source_bytes = bytes(whole_file, "utf8")
+    parser = get_parser(language)
+    tree = parser.parse(source_bytes)
+    root_node = tree.root_node
+
+    # Remove comments from source code
+    capture_list = []
+    for query_str in COMMENT_QUERY[language]:
+        comment_query = get_language(language).query(query_str)
+        capture_list += comment_query.captures(root_node)
+
+    capture_list.sort(key=lambda cap: cap[0].start_byte, reverse=True)
+
+    for node, _ in capture_list:
+        new_line_count = source_bytes[node.start_byte : node.end_byte].count(b"\n")
+        source_bytes = (
+            source_bytes[: node.start_byte]
+            + b"\n" * new_line_count
+            + source_bytes[node.end_byte :]
+        )
+
+    return (
+        path_comment
+        + "\n".join(source_bytes.decode("utf-8").split("\n")[: partial_lines - 1])
+        + "...\n"
+    )
+
+
+def clean_context_comments(
+    language,
+    prefix,
+    needle_code,
+    suffix,
+    tokenizer,
+    context_paths,
+    top_prefix_file,
+    bot_suffix_file,
+    position_ratio,
+):
+    prefix_orig_size = len(tokenizer.tokenize(prefix))
+    needle_orig_size = len(tokenizer.tokenize(needle_code))
+    suffix_orig_size = len(tokenizer.tokenize(suffix))
+
+    # If there is are prefix files, it might get chopped off preventing proper parsing
+    # we fully parse the top prefix file to avoid errors
+    if top_prefix_file:
+        second_path = f"{COMMENT_PREFIX[language]} Path: {context_paths[1]}"
+        prefix_lines = prefix.split("\n")
+        top_file_lines = 0
+        lines_after_target = []
+        target_found = False
+        for line in prefix_lines:
+            if target_found:
+                lines_after_target.append(line)
+            elif second_path in line:
+                target_found = True
+                lines_after_target.append(line)
+            else:
+                top_file_lines += 1
+        top_file_cleaned = clean_partial_file(
+            language, top_prefix_file, top_file_lines, context_paths[0]
+        )
+        rest_files_cleaned = clean_segment_comments(
+            language, "\n".join(lines_after_target), context_paths
+        )
+        prefix_cleaned = top_file_cleaned + rest_files_cleaned
+    else:
+        prefix_cleaned = clean_segment_comments(language, prefix, context_paths)
+    needle_cleaned = needle_code
+    needle_cleaned = clean_segment_comments(language, needle_code, context_paths)
+
+    # Same for suffix
+    if bot_suffix_file:
+        second_path = f"{COMMENT_PREFIX[language]} Path: {context_paths[-1]}"
+        prefix_lines = prefix.split("\n")
+        bot_file_lines = 0
+        lines_before_target = []
+        target_found = False
+        for line in prefix_lines:
+            if target_found:
+                lines_before_target.append(line)
+            elif second_path in line:
+                target_found = True
+                lines_before_target.append(line)
+            else:
+                bot_file_lines += 1
+        top_file_cleaned = clean_partial_file(
+            language, bot_suffix_file, bot_file_lines, context_paths[-1]
+        )
+        rest_files_cleaned = clean_segment_comments(
+            language, "\n".join(lines_before_target), context_paths
+        )
+        suffix_cleaned = rest_files_cleaned + top_file_cleaned
+    else:
+        suffix_cleaned = clean_segment_comments(language, suffix, context_paths)
+
+    # Calculate amount of padding to prefix and suffix to maintain position
+    prefix_clean_size = len(tokenizer.tokenize(prefix_cleaned))
+    needle_clean_size = len(tokenizer.tokenize(needle_cleaned))
+    suffix_clean_size = len(tokenizer.tokenize(suffix_cleaned))
+
+    # Determine how much of needle padding go to prefix & suffix
+    needle_tokens_removed = needle_orig_size - needle_clean_size
+    needle_prefix_padding = int(needle_tokens_removed * position_ratio)
+    needle_suffix_padding = needle_tokens_removed - needle_prefix_padding
+
+    # Add more padding to compensate removal from prefix/suffix portions
+    needle_prefix_padding = int(
+        (needle_prefix_padding + prefix_orig_size - prefix_clean_size - 1) / 2
+    )
+    needle_suffix_padding = int(
+        (needle_suffix_padding + suffix_orig_size - suffix_clean_size - 1) / 2
+    )
+
+    # Add padding
+    if needle_prefix_padding > 0:
+        prefix_cleaned = DUMMY_PADDING * needle_prefix_padding + "\n" + prefix_cleaned
+
+    if needle_suffix_padding > 0:
+        suffix_cleaned = suffix_cleaned + DUMMY_PADDING * needle_suffix_padding + "\n"
+
+    return prefix_cleaned, needle_cleaned, suffix_cleaned
 
 
 def make_code_context(
@@ -74,6 +238,7 @@ def make_code_context(
     position_ratio,
     code_context_size,
     language,
+    clean_comments,
 ) -> str:
     """
     Slice the file_content_list such that:
@@ -92,7 +257,12 @@ def make_code_context(
     ][0]
 
     needle_code = needle_file_content[needle["start_byte"] : needle["end_byte"]]
-    ntoken_needle = count_tokens(tokenizer.tokenize(needle_code))
+    ntoken_needle = len(tokenizer.tokenize(needle_code))
+
+    # Used for if cleaning comments option is enabled (paths comments are skipped)
+    context_paths = [needle["path"]]
+    top_prefix_file = None
+    bot_suffix_file = None
 
     prefix_size = int(code_context_size * position_ratio - ntoken_needle / 2)
     suffix_size = code_context_size - ntoken_needle - prefix_size
@@ -110,6 +280,8 @@ def make_code_context(
     index = needle_file_idx - 1
     while not is_break and prefix_size > 0 and index >= 0:
         path, content = file_content_list[index]
+        context_paths.insert(0, path)
+        top_prefix_file = content
         prefix, ntokens, is_break = _forward_tokenizable_lines(
             [COMMENT_PREFIX[language] + " Path: " + path] + content.split("\n"),
             tokenizer,
@@ -129,6 +301,8 @@ def make_code_context(
     index = needle_file_idx + 1
     while not is_break and suffix_size > 0 and index < len(file_content_list):
         path, content = file_content_list[index]
+        context_paths.append(path)
+        bot_suffix_file = content
         suffix, ntokens, is_break = _forward_tokenizable_lines(
             [COMMENT_PREFIX[language] + " Path: " + path] + content.split("\n"),
             tokenizer,
@@ -138,10 +312,18 @@ def make_code_context(
         suffix_size -= ntokens
         index += 1
 
-    # Remove all null characters from all three portions (obfuscate-nl)
-    code_prefix = code_prefix.replace("\0", "")
-    needle_code = needle_code.replace("\0", "")
-    code_suffix = code_suffix.replace("\0", "")
+    if clean_comments:
+        code_prefix, needle_code, code_suffix = clean_context_comments(
+            language,
+            code_prefix,
+            needle_code,
+            code_suffix,
+            tokenizer,
+            context_paths,
+            top_prefix_file,
+            bot_suffix_file,
+            position_ratio,
+        )
 
     code_context = code_prefix + needle_code + code_suffix
 
@@ -177,6 +359,7 @@ def evaluate_model(
     caching: bool = True,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
+    clean_comments: bool = False,
     ignore_comments: bool = False,
     trust_remote_code: bool = False,
     attn_implementation=None,
@@ -292,6 +475,7 @@ def evaluate_model(
                         position_ratio=position_ratio,
                         code_context_size=code_context_size,
                         language=lang,
+                        clean_comments=clean_comments,
                     )
                     task.update(code_context_info)
                     tasks.append(task)
