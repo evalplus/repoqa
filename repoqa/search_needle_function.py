@@ -21,9 +21,6 @@ COMMENT_PREFIX = {
     "cpp": "//",
 }
 
-# Dummy padding for comment free
-DUMMY_PADDING = "dummy"
-
 # Model context below:
 TEMPLATE = "instruction\ncode_context\ndescription\ninstruction"
 
@@ -216,18 +213,19 @@ def clean_context_comments(
 
     # Add more padding to compensate removal from prefix/suffix portions
     needle_prefix_padding = int(
-        (needle_prefix_padding + prefix_orig_size - prefix_clean_size - 1) / 2
+        (needle_prefix_padding + prefix_orig_size - prefix_clean_size - 1)
     )
     needle_suffix_padding = int(
-        (needle_suffix_padding + suffix_orig_size - suffix_clean_size - 1) / 2
+        (needle_suffix_padding + suffix_orig_size - suffix_clean_size - 1)
     )
 
+    dummy_padding = f"{COMMENT_PREFIX[language]} "
     # Add padding
     if needle_prefix_padding > 0:
-        prefix_cleaned = DUMMY_PADDING * needle_prefix_padding + "\n" + prefix_cleaned
+        prefix_cleaned = dummy_padding * needle_prefix_padding + "\n" + prefix_cleaned
 
     if needle_suffix_padding > 0:
-        suffix_cleaned = suffix_cleaned + DUMMY_PADDING * needle_suffix_padding + "\n"
+        suffix_cleaned = suffix_cleaned + dummy_padding * needle_suffix_padding + "\n"
 
     return prefix_cleaned, needle_cleaned, suffix_cleaned
 
