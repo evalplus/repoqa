@@ -359,8 +359,8 @@ def evaluate_model(
     caching: bool = True,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
-    clean_comments: bool = False,
-    ignore_comments: bool = False,
+    clean_ctx_comments: bool = False,
+    eval_ignore_comments: bool = False,  # ignore comments during score computation
     trust_remote_code: bool = False,
     attn_implementation=None,
 ):
@@ -475,7 +475,7 @@ def evaluate_model(
                         position_ratio=position_ratio,
                         code_context_size=code_context_size,
                         language=lang,
-                        clean_comments=clean_comments,
+                        clean_comments=clean_ctx_comments,
                     )
                     task.update(code_context_info)
                     tasks.append(task)
@@ -559,7 +559,7 @@ def evaluate_model(
     file_base, _ = os.path.splitext(model_output_path)
     result_path = file_base + "-SCORES.json"
     output_json = compute_score(
-        model, dataset, model_outputs, ignore_comments or clean_comments
+        model, dataset, model_outputs, eval_ignore_comments or clean_ctx_comments
     )
     save_json(output_json, result_path)
 
