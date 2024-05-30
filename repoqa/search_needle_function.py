@@ -396,7 +396,12 @@ def evaluate_model(
 
     # resume tasks from cache if any
     # schema: {"cache_id": .., **task}
-    cache_file = os.path.join(CACHE_DIR, f"cache_ntoken_{code_context_size}_v1.jsonl")
+    extra = ""
+    if clean_ctx_comments:
+        extra += "_clean_cmt"
+    cache_file = os.path.join(
+        CACHE_DIR, f"cache{extra}_ntoken_{code_context_size}_v1.jsonl"
+    )
     os.makedirs(CACHE_DIR, exist_ok=True)
 
     cache = {}
