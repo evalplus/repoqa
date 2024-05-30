@@ -219,13 +219,24 @@ def clean_context_comments(
         (needle_suffix_padding + suffix_orig_size - suffix_clean_size - 1)
     )
 
-    dummy_padding = f"{COMMENT_PREFIX[language]} "
-    # Add padding
-    if needle_prefix_padding > 0:
-        prefix_cleaned = dummy_padding * needle_prefix_padding + "\n" + prefix_cleaned
+    prefix_dummy = ""
+    line = 0
+    while needle_prefix_padding > 0:
+        current = f"{COMMENT_PREFIX[language]} Line Number {line}\n"
+        current_len = len(tokenizer.tokenize(current))
+        needle_prefix_padding -= current_len
+        prefix_dummy += current
+        line += 1
+    prefix_cleaned = prefix_dummy + "\n" + prefix_cleaned
 
-    if needle_suffix_padding > 0:
-        suffix_cleaned = suffix_cleaned + dummy_padding * needle_suffix_padding + "\n"
+    suffix_dummy = ""
+    while needle_suffix_padding > 0:
+        current = f"{COMMENT_PREFIX[language]} Line Number {line}\n"
+        current_len = len(tokenizer.tokenize(current))
+        needle_suffix_padding -= current_len
+        line += 1
+        suffix_dummy += current
+    suffix_cleaned = suffix_cleaned + suffix_dummy + "\n"
 
     return prefix_cleaned, needle_cleaned, suffix_cleaned
 
