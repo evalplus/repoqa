@@ -233,10 +233,10 @@ def clean_context_comments(
 def make_code_context(
     needle,
     file_content_list: List[Tuple[str, str]],
-    position_ratio,
-    code_context_size,
-    language,
-    clean_comments,
+    position_ratio: float,
+    code_context_size: int,
+    language: str,
+    clean_comments: bool = False,
 ) -> str:
     """
     Slice the file_content_list such that:
@@ -310,6 +310,8 @@ def make_code_context(
         suffix_size -= ntokens
         index += 1
 
+    # Remove the comments in code_prefix, needle_code, code_suffix and
+    # pad the code_prefix and code_suffix to maintain the position of the needle
     if clean_comments:
         code_prefix, needle_code, code_suffix = clean_context_comments(
             language,
@@ -556,9 +558,9 @@ def evaluate_model(
 
     file_base, _ = os.path.splitext(model_output_path)
     result_path = file_base + "-SCORES.json"
-    if clean_comments:
-        ignore_comments = True
-    output_json = compute_score(model, dataset, model_outputs, ignore_comments)
+    output_json = compute_score(
+        model, dataset, model_outputs, ignore_comments or clean_comments
+    )
     save_json(output_json, result_path)
 
 
