@@ -524,7 +524,7 @@ def evaluate_model(
         engine = VllmProvider(
             model,
             tensor_parallel_size=tensor_parallel_size,
-            max_model_len=int(code_context_size * 1.25),  # Magic number
+            max_model_len=int(code_context_size * 1.5),  # Magic number
             trust_remote_code=trust_remote_code,
         )
     elif backend == "anthropic":
