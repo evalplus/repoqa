@@ -556,6 +556,8 @@ def evaluate_model(
 
     file_base, _ = os.path.splitext(model_output_path)
     result_path = file_base + "-SCORES.json"
+    if clean_comments:
+        ignore_comments = True
     output_json = compute_score(model, dataset, model_outputs, ignore_comments)
     save_json(output_json, result_path)
 
