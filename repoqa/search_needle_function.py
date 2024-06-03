@@ -143,6 +143,7 @@ def clean_context_comments(
     top_prefix_file,
     bot_suffix_file,
     position_ratio,
+    add_padding,
 ):
     prefix_orig_size = len(tokenizer.tokenize(prefix))
     needle_orig_size = len(tokenizer.tokenize(needle_code))
@@ -201,6 +202,9 @@ def clean_context_comments(
     else:
         suffix_cleaned = clean_segment_comments(language, suffix, context_paths)
 
+    if not (add_padding):
+        return prefix_cleaned, needle_cleaned, suffix_cleaned
+
     # Calculate amount of padding to prefix and suffix to maintain position
     prefix_clean_size = len(tokenizer.tokenize(prefix_cleaned))
     needle_clean_size = len(tokenizer.tokenize(needle_cleaned))
@@ -248,6 +252,7 @@ def make_code_context(
     code_context_size: int,
     language: str,
     clean_comments: bool = False,
+    clean_with_padding: bool = False,
 ) -> str:
     """
     Slice the file_content_list such that:
@@ -334,6 +339,7 @@ def make_code_context(
             top_prefix_file,
             bot_suffix_file,
             position_ratio,
+            clean_with_padding,
         )
 
     code_context = code_prefix + needle_code + code_suffix
@@ -372,6 +378,7 @@ def evaluate_model(
     dataset_path: str = None,
     clean_ctx_comments: bool = False,
     eval_ignore_comments: bool = False,  # ignore comments during score computation
+    clean_with_padding: bool = False,  # Add padding to maintain relative position (for clean comments mode)
     trust_remote_code: bool = False,
     attn_implementation=None,
 ):
@@ -492,6 +499,7 @@ def evaluate_model(
                         code_context_size=code_context_size,
                         language=lang,
                         clean_comments=clean_ctx_comments,
+                        clean_with_padding=clean_with_padding,
                     )
                     task.update(code_context_info)
                     tasks.append(task)
