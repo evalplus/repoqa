@@ -4,6 +4,7 @@
 
 import signal
 import time
+from typing import List
 
 import openai
 from openai.types.chat import ChatCompletion
@@ -30,19 +31,25 @@ def make_request(
         **kwargs,
     )
 
+def make_embeddings_request(
+    client: openai.Client,
+    texts: List[str],
+    model: str,
+) -> List[List[float]]:
+    response = client.embeddings.create(input=texts, model=model, encoding_format="float")
+    return [d.embedding for d in response.data]
 
 def handler(signum, frame):
     # swallow signum and frame
     raise Exception("end of time")
 
-
-def make_auto_request(*args, **kwargs) -> ChatCompletion:
+def make_request_with_retry(func, *args, **kwargs) -> ChatCompletion | List[List[float]]:
     ret = None
     while ret is None:
         try:
             signal.signal(signal.SIGALRM, handler)
             signal.alarm(100)
-            ret = make_request(*args, **kwargs)
+            ret = func(*args, **kwargs)
             signal.alarm(0)
         except openai.RateLimitError:
             print("Rate limit exceeded. Waiting...")
@@ -61,3 +68,9 @@ def make_auto_request(*args, **kwargs) -> ChatCompletion:
             signal.alarm(0)
             time.sleep(1)
     return ret
+
+def make_auto_request(*args, **kwargs) -> ChatCompletion:
+    return make_request_with_retry(make_request, *args, **kwargs)
+
+def make_auto_embeddings_request(*args, **kwargs) -> List[List[float]]:
+    return make_request_with_retry(make_embeddings_request, *args, **kwargs)

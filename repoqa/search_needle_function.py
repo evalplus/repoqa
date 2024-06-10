@@ -5,6 +5,7 @@
 import json
 import os
 from typing import List, Tuple
+import difflib
 
 from transformers import AutoTokenizer
 from tree_sitter_languages import get_language, get_parser
@@ -29,6 +30,16 @@ INSTRUCTION = (
     " please retrieve and repeat the exact described function from the code context in a code block wrapped by ```:"
 )
 
+def _find_line(text, index):
+    if index < 0 or index >= len(text):
+        raise IndexError()
+    line = 0
+    for i, ch in enumerate(text):
+        if i == index:
+            return line
+        if ch == "\n" or ch == "\r":
+            line += 1
+    return line
 
 def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
     """Return the text and tokens from bottom to top"""
@@ -374,6 +385,8 @@ def evaluate_model(
     eval_ignore_comments: bool = False,  # ignore comments during score computation
     trust_remote_code: bool = False,
     attn_implementation=None,
+    is_embedding: bool = False,
+    embedding_context_chunk_size: int = 30
 ):
     if backend is None:
         if base_url is not None:
@@ -515,9 +528,14 @@ def evaluate_model(
         return
 
     if backend == "openai":
-        from repoqa.provider.openai import OpenAIProvider
+        if is_embedding:
+            from repoqa.provider.embeddings.openai import OpenAIEmbeddingsProvider
+            
+            engine = OpenAIEmbeddingsProvider(model, base_url=base_url)
+        else:
+            from repoqa.provider.openai import OpenAIProvider
 
-        engine = OpenAIProvider(model, base_url=base_url)
+            engine = OpenAIProvider(model, base_url=base_url)
     elif backend == "vllm":
         from repoqa.provider.vllm import VllmProvider
 
@@ -563,10 +581,29 @@ def evaluate_model(
                 prompt = ""
                 for key in task["template"].split("\n"):
                     prompt += task[key]
+            
+                if is_embedding:
+                    tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-Instruct-hf")
+                    tokenized_code_context = tokenizer.encode(task["code_context"])
+                    prefix = tokenizer.decode(tokenized_code_context[:task["needle_token_start"]])
+                    needle = tokenizer.decode(tokenized_code_context[task["needle_token_start"]:task["needle_token_end"]])
+                    suffix = tokenizer.decode(tokenized_code_context[task["needle_token_end"]:])
 
-                replies = engine.generate_reply(
-                    prompt, n=1, max_tokens=max_new_tokens, system_msg=system_message
-                )
+                    prefix_lines = prefix.splitlines()
+                    suffix_lines = suffix.splitlines()
+
+                    prefix_split = ["\n".join(prefix_lines[line:min(line + embedding_context_chunk_size, len(prefix_lines))]) for line in range(0, len(prefix_lines), embedding_context_chunk_size)]
+                    suffix_split = ["\n".join(suffix_lines[line:min(line + embedding_context_chunk_size, len(suffix_lines))]) for line in range(0, len(suffix_lines), embedding_context_chunk_size)]
+                    snippets = prefix_split + [needle] + suffix_split 
+
+                    replies = engine.find_best_match(
+                        task["description"],
+                        snippets
+                    )
+                else:
+                    replies = engine.generate_reply(
+                        prompt, n=1, max_tokens=max_new_tokens, system_msg=system_message
+                    )
                 result = {**task, "output": replies}
                 f_out.write(json.dumps(result) + "\n")
                 f_out.flush()

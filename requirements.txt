@@ -12,3 +12,4 @@ anthropic
 google-generativeai
 vllm
 stop-sequencer
+scikit-learn
