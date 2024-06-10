@@ -595,6 +595,7 @@ def evaluate_model(
                     prefix_split = ["\n".join(prefix_lines[line:min(line + embedding_context_chunk_size, len(prefix_lines))]) for line in range(0, len(prefix_lines), embedding_context_chunk_size)]
                     suffix_split = ["\n".join(suffix_lines[line:min(line + embedding_context_chunk_size, len(suffix_lines))]) for line in range(0, len(suffix_lines), embedding_context_chunk_size)]
                     snippets = prefix_split + [needle] + suffix_split 
+                    snippets = [snippet for snippet in snippets if len(snippet.strip()) > 0]
 
                     replies = engine.find_best_match(
                         task["description"],
