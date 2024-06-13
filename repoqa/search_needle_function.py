@@ -386,7 +386,7 @@ def evaluate_model(
     trust_remote_code: bool = False,
     attn_implementation=None,
     is_embedding: bool = False,
-    embedding_context_chunk_size: int = 30
+    embedding_chunk_line_count: int = 30
 ):
     if backend is None:
         if base_url is not None:
@@ -592,8 +592,8 @@ def evaluate_model(
                     prefix_lines = prefix.splitlines()
                     suffix_lines = suffix.splitlines()
 
-                    prefix_split = ["\n".join(prefix_lines[line:min(line + embedding_context_chunk_size, len(prefix_lines))]) for line in range(0, len(prefix_lines), embedding_context_chunk_size)]
-                    suffix_split = ["\n".join(suffix_lines[line:min(line + embedding_context_chunk_size, len(suffix_lines))]) for line in range(0, len(suffix_lines), embedding_context_chunk_size)]
+                    prefix_split = ["\n".join(prefix_lines[line:min(line + embedding_chunk_line_count, len(prefix_lines))]) for line in range(0, len(prefix_lines), embedding_chunk_line_count)]
+                    suffix_split = ["\n".join(suffix_lines[line:min(line + embedding_chunk_line_count, len(suffix_lines))]) for line in range(0, len(suffix_lines), embedding_chunk_line_count)]
                     snippets = prefix_split + [needle] + suffix_split 
                     snippets = [snippet for snippet in snippets if len(snippet.strip()) > 0]
 
