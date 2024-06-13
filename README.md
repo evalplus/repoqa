@@ -1,6 +1,9 @@
 # RepoQA: Evaluating Long-Context Code Understanding
 
-🏠 Homepage: [https://evalplus.github.io/repoqa.html](https://evalplus.github.io/repoqa.html)
+[![](https://img.shields.io/badge/arXiv-2406.06025-b31b1b.svg?style=for-the-badge)](https://arxiv.org/abs/2406.06025)
+[![](https://img.shields.io/pypi/v/repoqa?style=for-the-badge&labelColor=black)](https://pypi.org/project/repoqa/)
+
+🏠 Homepage: https://evalplus.github.io/repoqa.html
 
 ## 🚀 Installation
 
@@ -181,3 +184,14 @@ repoqa.compute_score --model-output-path={model-output}.jsonl
 - [RepoQA Homepage](https://evalplus.github.io/repoqa.html)
 - [RepoQA Dataset Curation](docs/curate_dataset.md)
 - [RepoQA Development Notes](docs/dev_note.md)
+
+## Citation
+
+```bibtex
+@article{repoqa,
+  title = {RepoQA: Evaluating Long Context Code Understanding},
+  author = {Liu, Jiawei and Tian, Jia Le and Daita, Vijay and Wei, Yuxiang and Ding, Yifeng and Wang, Yuhan Katherine and Yang, Jun and Zhang, Lingming},
+  year = {2024},
+  journal = {arXiv preprint arXiv:2406.06025},
+}
+```
