@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: (c) 2024 EvalPlus Team
 #
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 import os
+from enum import Enum
 from typing import List, Tuple
 
 from transformers import AutoTokenizer
@@ -28,6 +28,12 @@ INSTRUCTION = (
     "Based on the function description and code context,"
     " please retrieve and repeat the exact described function from the code context in a code block wrapped by ```:"
 )
+
+# Mode to clean context comments
+class CleanComment(Enum):
+    NoClean = "none"
+    PositionalPadding = "positional_padding"
+    NoPadding = "no_padding"
 
 
 def _backward_tokenizable_lines(lines, tokenizer, max_tokens):
@@ -134,16 +140,16 @@ def clean_partial_file(language, whole_file, partial_lines, path):
 
 
 def clean_context_comments(
-    language,
-    prefix,
-    needle_code,
-    suffix,
+    language: str,
+    prefix: str,
+    needle_code: str,
+    suffix: str,
     tokenizer,
-    context_paths,
-    top_prefix_file,
-    bot_suffix_file,
-    position_ratio,
-    add_padding,
+    context_paths: str,
+    top_prefix_file: str,
+    bot_suffix_file: str,
+    position_ratio: float,
+    add_padding: bool,
 ):
     prefix_orig_size = len(tokenizer.tokenize(prefix))
     needle_orig_size = len(tokenizer.tokenize(needle_code))
@@ -202,7 +208,7 @@ def clean_context_comments(
     else:
         suffix_cleaned = clean_segment_comments(language, suffix, context_paths)
 
-    if not (add_padding):
+    if not add_padding:
         return prefix_cleaned, needle_cleaned, suffix_cleaned
 
     # Calculate amount of padding to prefix and suffix to maintain position
@@ -251,8 +257,7 @@ def make_code_context(
     position_ratio: float,
     code_context_size: int,
     language: str,
-    clean_comments: bool = False,
-    clean_with_padding: bool = False,
+    clean_comments: CleanComment = CleanComment.NoClean,
 ) -> str:
     """
     Slice the file_content_list such that:
@@ -328,7 +333,7 @@ def make_code_context(
 
     # Remove the comments in code_prefix, needle_code, code_suffix and
     # pad the code_prefix and code_suffix to maintain the position of the needle
-    if clean_comments:
+    if clean_comments != CleanComment.NoClean:
         code_prefix, needle_code, code_suffix = clean_context_comments(
             language,
             code_prefix,
@@ -339,7 +344,7 @@ def make_code_context(
             top_prefix_file,
             bot_suffix_file,
             position_ratio,
-            clean_with_padding,
+            clean_comments == CleanComment.PositionalPadding,
         )
 
     code_context = code_prefix + needle_code + code_suffix
@@ -376,9 +381,8 @@ def evaluate_model(
     caching: bool = True,  # if enabled, will cache the tasks which can be used to resume
     system_message: str = None,
     dataset_path: str = None,
-    clean_ctx_comments: bool = False,
+    clean_ctx_comments: str = "none",
     eval_ignore_comments: bool = False,  # ignore comments during score computation
-    clean_with_padding: bool = False,  # Add padding to maintain relative position (for clean comments mode)
     trust_remote_code: bool = False,
     attn_implementation=None,
 ):
@@ -412,10 +416,17 @@ def evaluate_model(
     else:
         model_outputs = []
 
+    if clean_ctx_comments == "positional_padding":
+        clean_ctx_comments = CleanComment.PositionalPadding
+    elif clean_ctx_comments == "no_padding":
+        clean_ctx_comments = CleanComment.NoPadding
+    else:
+        clean_ctx_comments = CleanComment.NoClean
+
     # resume tasks from cache if any
     # schema: {"cache_id": .., **task}
     extra = ""
-    if clean_ctx_comments:
+    if clean_ctx_comments != CleanComment.NoClean:
         extra += "_clean_cmt"
     cache_file = os.path.join(
         CACHE_DIR, f"cache{extra}_ntoken_{code_context_size}_v1.jsonl"
@@ -499,7 +510,6 @@ def evaluate_model(
                         code_context_size=code_context_size,
                         language=lang,
                         clean_comments=clean_ctx_comments,
-                        clean_with_padding=clean_with_padding,
                     )
                     task.update(code_context_info)
                     tasks.append(task)
@@ -509,7 +519,6 @@ def evaluate_model(
                             f_out.write(
                                 json.dumps({"cache_id": cache_id, **task}) + "\n"
                             )
-
     # filter finished tasks again (in case a cache is used)
     tasks = [
         task
@@ -583,7 +592,10 @@ def evaluate_model(
     file_base, _ = os.path.splitext(model_output_path)
     result_path = file_base + "-SCORES.json"
     output_json = compute_score(
-        model, dataset, model_outputs, eval_ignore_comments or clean_ctx_comments
+        model,
+        dataset,
+        model_outputs,
+        eval_ignore_comments or clean_ctx_comments != CleanComment.NoClean,
     )
     save_json(output_json, result_path)
 
