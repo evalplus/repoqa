@@ -19,6 +19,7 @@ COMMENT_PREFIX = {
     "typescript": "//",
     "rust": "//",
     "cpp": "//",
+    "go": "//",
 }
 
 # Model context below:
