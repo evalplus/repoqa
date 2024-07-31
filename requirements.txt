@@ -5,6 +5,7 @@ fire
 nltk
 rich
 numpy
+tree_sitter<=0.21.3
 tree_sitter_languages
 transformers
 openai
