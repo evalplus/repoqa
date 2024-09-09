@@ -1,0 +1,70 @@
+josephrocca(QUESTIONER) asks: My tokenizer files are hosted within this folder:
+```
+https://example.com/public/models/TheBloke/Llama-2-13B-GPTQ/
+```
+First I load the lib:
+```js
+let { AutoTokenizer } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.1');
+```
+Then I tried what I thought would be the most obvious/intuitive API:
+```js
+await AutoTokenizer.from_pretrained("/public/models/TheBloke/Llama-2-13B-GPTQ")
+// requests: https://example.com/models/public/models/TheBloke/Llama-2-13B-GPTQ/tokenizer.json
+```
+This is strongly counter-intuitive to me. If I add a `/` at the start of the URL, it shouldn't add anything before that. A path that starts with `/` on the web always means "append this to the origin".
+
+So I read the docs, and it seems to suggest that you need to put at `.` on the end:
+```js
+await AutoTokenizer.from_pretrained("/public/models/TheBloke/Llama-2-13B-GPTQ/.")
+// requests: https://example.com/models/public/models/TheBloke/Llama-2-13B-GPTQ/tokenizer.json
+```
+Nope. So the next obvious step was to just give it an absolute URL and be done with it:
+```js
+await AutoTokenizer.from_pretrained("https://example.com/public/models/TheBloke/Llama-2-13B-GPTQ")
+// requests:  'https://huggingface.co/https://example.com/public/models/TheBloke/Llama-2-13B-GPTQ/resolve/main/tokenizer_config.json
+```
+Oof.
+
+So I'm a bit confused here 😵‍💫
+
+Going to keep trying, but I've spent 20 minutes on this so far, so posting here so you can improve the DX around this, even if I do manage to solve it myself soon.
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+xenova(OWNER) replies: If your app is hosted on a different site as the models, the terminology I use is `remoteModels`:
+
+You can try set `env.remoteHost` and/or `env.remotePathTemplate` (see [docs](https://huggingface.co/docs/transformers.js/api/env#:~:text=Hugging%20Face%20Hub.-,remoteHost,-string))
+
+![image](https://github.com/xenova/transformers.js/assets/26504141/ce72a93e-8471-4d5d-b3e4-f38e455543bd)
+
+
+These values default to:
+```
+remoteHost: 'https://huggingface.co/',
+remotePathTemplate: '{model}/resolve/{revision}/',
+```
+(see [code](https://github.com/xenova/transformers.js/blob/5b31129218e2f6ea001f8477a094f4f3f15a2502/src/env.js#L101-L102)).
+
+Open to suggestions on how to improve DX :)
+
+xenova(OWNER) replies: If your app is hosted on the same site as the models (terminology: `localModels`), then you can modify `env.localModelPath`. It defaults to `/models/` as you see above.
+```js
+import { env } from '@xenova/transformers';
+env.localModelPath = '/path/to/local/models/';
+// subsequent requests will go to https://example.com/path/to/local/models/
+```
+
+josephrocca(QUESTIONER) replies: Ah, thanks! :pray:  I think the main DX improvement here would just be to mention that here where it says:
+
+> A path to a *directory* containing tokenizer files, e.g., `./my_model_directory/.`:
+
+![image](https://github.com/xenova/transformers.js/assets/1167575/4f0f42ac-f2de-46dd-a632-061edb4f3d0b)
+
+Here's the line: https://github.com/xenova/transformers.js/blob/main/src/tokenizers.js#L3812C11-L3812C11
+
+I was going to make a quick pull request just now using the Github web editor but wasn't really sure on the wording here. Maybe something like "`env.localModelPath` will be prepended to the path" where `env.localModelPath` is also a link to https://huggingface.co/docs/transformers.js/custom_usage ?
+
+But I'd also vote for URLs starting with `/` and `https://` to be treated differently. Same with `blob:` and `data:` too I guess, since I did consider embedding the tokenizer files in the page for quicker load. Also it definitely seems like the default `localModelPath` path should just be empty rather than "models". That would have been another route to reducing confusion/friction for me here.
+
+All of that said, I haven't thought about this long so don't weight these thoughts too much!

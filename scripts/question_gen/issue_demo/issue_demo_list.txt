@@ -1,0 +1,10 @@
+https://github.com/oatpp/oatpp/issues/374
+https://github.com/ClickHouse/clickhouse-cpp/issues/188
+https://github.com/polybar/polybar/issues/2241
+https://github.com/drogonframework/drogon/issues/695
+https://github.com/mrdoob/three.js/issues/22160
+https://github.com/drogonframework/drogon/issues/560
+https://github.com/Password4j/password4j/issues/136
+https://github.com/xenova/transformers.js/issues/421
+https://github.com/xenova/transformers.js/issues/337
+https://github.com/nsqio/nsq/issues/1309
