@@ -13,7 +13,7 @@ from appdirs import user_cache_dir
 CACHE_DIR = user_cache_dir("repoqa")
 
 REPOQA_DATA_OVERRIDE_PATH = os.getenv("REPOQA_DATA_OVERRIDE_PATH", None)
-REPOQA_DATA_VERSION = os.getenv("REPOQA_DATA_VERSION", "2024-04-20")
+REPOQA_DATA_VERSION = os.getenv("REPOQA_DATA_VERSION", "2024-06-23")
 
 
 def _get_repoqa_data_ready_path() -> str:
