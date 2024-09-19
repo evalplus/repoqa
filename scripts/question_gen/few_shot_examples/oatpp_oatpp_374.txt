@@ -1,0 +1,11 @@
+suvidh(QUESTIONER) asks: I basically do not want my website to have "not secure" tag..
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+lganzzzo(MEMBER) replies: Hey @suvidh ,
+
+Sure, just use one of the provided SSL adaptors:
+- [oatpp-openssl](https://github.com/oatpp/oatpp-openssl)
+- [oatpp-libressl](https://github.com/oatpp/oatpp-libressl)
+- [oatpp-mbedtls](https://github.com/oatpp/oatpp-mbedtls)

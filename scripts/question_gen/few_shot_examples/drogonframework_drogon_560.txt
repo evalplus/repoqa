@@ -1,0 +1,76 @@
+gtorrico(QUESTIONER) asks: Thank you for creating such an performant yet easy to use framework.
+
+Some users might like to use stricter warnings or treat warnings as errors in their code.  Exporting the includes as system libraries [should allow](https://foonathan.net/2018/10/cmake-warnings/#preventing-warnings-in-header-files) the compiler to ignore warnings generated when including `drogon` header files but I still got warnings after changing `drogon/CMakeLists.txt` in my submodule copy of `drogon` like so:
+```diff
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0df11f1..dcb5c1a 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -52,7 +52,12 @@ endif(HAS_ANY AND HAS_STRING_VIEW)
+
+ target_include_directories(
+   ${PROJECT_NAME}
+-  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/inc>
++  PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/inc>
++         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/orm_lib/inc>
++         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
++         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trantor>
++         $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
++  SYSTEM INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/inc>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/orm_lib/inc>
+          $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trantor>
+```
+
+As a workaround I did this in my `CMakeLists.txt`:
+```CMake
+add_subdirectory(drogon)
+
+get_target_property(DROGON_INTERFACE_INCLUDES drogon INTERFACE_INCLUDE_DIRECTORIES)
+add_library(drogon_incs INTERFACE)
+target_include_directories(drogon_incs SYSTEM INTERFACE ${DROGON_INTERFACE_INCLUDES})
+
+add_executable(${exe_target} ${exe_sources})
+target_link_libraries(${exe_target} PRIVATE drogon_incs)
+target_link_libraries(${exe_target} PRIVATE drogon)
+target_compile_features(${exe_target} PRIVATE cxx_std_20)
+target_compile_options(${exe_target} PRIVATE ${extra_warning_flags})
+```
+
+Ideally this workaround would not be needed, but I don't know enough about `CMake` to know why my local changes to `drogon/CMakeLists.txt` failed to work.
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+an-tao(MEMBER) replies: please change drogon/CMakeLists.txt as follows:
+
+```diff
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0df11f1..c14aff7 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -52,7 +52,7 @@ endif(HAS_ANY AND HAS_STRING_VIEW)
+
+ target_include_directories(
+   ${PROJECT_NAME}
+-  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/inc>
++SYSTEM  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/inc>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/orm_lib/inc>
+          $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trantor>
+```
+
+And then add drogon as a subdirectory
+
+```cmake
+ add_subdirectory(drogon)
+ target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
+```
+
+then you could set the compiler flag of your application like:
+
+```
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+```
+
+gtorrico(QUESTIONER) replies: Thank you that worked!

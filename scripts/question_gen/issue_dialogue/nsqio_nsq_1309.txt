@@ -1,0 +1,6 @@
+kevinsir(QUESTIONER) asks: How can I set the max times when the message retry? I mean when set the max times=3 nsq will only delivery this message 3 times . When it is all error. it will be discarded
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+ploxiln(MEMBER) replies: This is configured in the nsq consumer library, for example in the go-nsq `Config.MaxAttempts`: https://godoc.org/github.com/nsqio/go-nsq#Config

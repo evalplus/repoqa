@@ -1,0 +1,14 @@
+kelvin-hey(QUESTIONER) asks: I want to remove the system tray from the polybar, to display only the bar itself.
+
+Is that possible?
+
+If yes, how to make.
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+patrick96(MEMBER) replies: `tray-position = none`
+
+kelvin-hey(QUESTIONER) replies: Many thanks.
+
+I used tray-position = undefined and work too.
