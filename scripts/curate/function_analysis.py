@@ -37,6 +37,8 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
         lists = json.load(f)
 
     for lang, repos in lists.items():
+        if lang != "python":
+            continue
         assert (
             lang in FUNCTION_QUERY
         ), f"Unsupported language: {lang} -- supported: {FUNCTION_QUERY.keys()}"
@@ -49,6 +51,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
         fn_name_parser = _cpp_name_parser if lang == "cpp" else _default_name_parser
 
         for repo in tqdm(repos):
+            function_counts = {}
             # skip if the repo already has function information
             if not overwrite_analysis and repo.get("functions"):
                 continue
@@ -70,6 +73,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                 extracted_functions = []
                 for capture in fn_query.captures(tree.root_node):
                     node, _ = capture
+                    function_name = fn_name_parser(node)
                     function_content = code_bytes[node.start_byte : node.end_byte]
                     code_ratio = comment_analysis(function_content, lang)
                     extracted_functions.append(
@@ -84,15 +88,28 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                             "global_start_byte": global_byte_idx + node.start_byte,
                             "global_end_byte": global_byte_idx + node.end_byte,
                             "code_ratio": code_ratio,
+                            "file": path,
                         }
+                    )
+                    function_counts[function_name] = (
+                        function_counts.get(function_name, 0) + 1
                     )
                 functions[path] = extracted_functions
                 global_byte_idx += len(code)
                 global_line_idx += code.count("\n") + 1
+
+            # Update whether function name is unique
+            unique_count = 0
+            for function in functions:
+                function["is_unique"] = function_counts[function["name"]] == 1
+                if function_counts[function["name"]] == 1:
+                    unique_count += 1
+
             repo["functions"] = functions
             print(
                 f"🎉 Found {sum(len(v) for v in functions.values())} functions in {repo['repo']} ({lang})"
             )
+            print(f"🎉 Found {unique_count} unique functions in {repo['repo']} ({lang})")
 
     # update the dataset
     with open(dataset_path, "w") as f_out:

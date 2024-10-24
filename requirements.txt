@@ -12,3 +12,4 @@ openai
 anthropic
 google-generativeai
 vllm
+gitpython
