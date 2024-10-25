@@ -3,11 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+from typing import Any, Dict
 
 from tqdm import tqdm
+from tree_sitter import Node
 from tree_sitter_languages import get_language, get_parser
 
-from repoqa.utility import COMMENT_QUERY, FUNCTION_QUERY, topological_sort
+from repoqa.utility import (
+    CLASS_TYPE_NODE,
+    COMMENT_QUERY,
+    FUNCTION_QUERY,
+    topological_sort,
+)
 
 _default_name_parser = lambda node: node.child_by_field_name("name").text.decode()
 _cpp_name_parser = (
@@ -28,6 +35,20 @@ def comment_analysis(code: bytes, language: str) -> float:
             comment_text = code[node.start_byte : node.end_byte]
             characters += len(comment_text)
     return characters / len(code)
+
+
+# For cpp, java, typescript and python we find the class of the method, if one exists
+# for go and rust, we find the type
+def class_type_analysis(current_node: Node, lang: str) -> str:
+    while current_node:
+        print(current_node.type)
+        if current_node.type in CLASS_TYPE_NODE[lang]:
+            class_name_node = current_node.child_by_field_name("name")
+            if class_name_node:
+                return class_name_node.text.decode("utf-8")
+            return "not found"
+        current_node = current_node.parent
+    return ""
 
 
 # Annotate an incomplete repoqa dataset with function and class information
@@ -73,6 +94,10 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                 extracted_functions = []
                 for capture in fn_query.captures(tree.root_node):
                     node, _ = capture
+                    if lang == "go":
+                        function_class_type = ""
+                    else:
+                        function_class_type = class_type_analysis(node, lang)
                     function_name = fn_name_parser(node)
                     function_content = code_bytes[node.start_byte : node.end_byte]
                     code_ratio = comment_analysis(function_content, lang)
@@ -89,6 +114,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                             "global_end_byte": global_byte_idx + node.end_byte,
                             "code_ratio": code_ratio,
                             "file": path,
+                            "class_type": function_class_type,
                         }
                     )
                     function_counts[function_name] = (
@@ -120,3 +146,5 @@ if __name__ == "__main__":
     from fire import Fire
 
     Fire(main)
+
+# TODO: write test case for class name/type identifier here

@@ -15,8 +15,14 @@ FUNCTION_QUERY = {
     "java": "(method_declaration name: (_)) @fdef",
     "typescript": "(function_declaration name: (_)) @fdef",
     "rust": "(function_item name: (_)) @fdef",
-    "cpp": "(function_definition declarator: (function_declarator declarator: (identifier))) @fdef",
-    "go": "(function_declaration name: (_)) @fdef",
+    "cpp": "((function_definition(function_declarator) @function.declaration)) @fdef",
+    "go": [
+        "(function_declaration name: (_)) @fdef",
+        """(method_declaration
+                receiver: (parameter_list (parameter (identifier) (type_identifier) @receiver))
+                name: (identifier) @method_name)
+            ) @method_declaration""",
+    ],
 }
 
 COMMENT_QUERY = {
@@ -52,6 +58,15 @@ FUNCTION_NAME_QUERY = {
         (function_definition
           name: (identifier) @function_name)
     """,
+}
+
+CLASS_TYPE_NODE = {
+    "python": ["class_definition"],
+    "java": ["class_declaration"],
+    "cpp": ["class_specifier" "struct_specifier"],
+    "go": [],  # For go, we need a different mechanism to check, sigh
+    "rust": ["impl_item"],
+    "typescript": ["class_declaration", "interface_declaration"],
 }
 
 
