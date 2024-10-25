@@ -10,3 +10,4 @@ pygraphviz
 matplotlib
 transformers
 python-dep-tree
+code2flow
