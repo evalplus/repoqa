@@ -5,7 +5,6 @@
 from typing import List
 
 import torch
-from stop_sequencer import StopSequencer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from repoqa.provider.base import BaseProvider
@@ -23,11 +22,6 @@ class HfProvider(BaseProvider):
             attn_implementation=attn_implementation,
             torch_dtype="auto",
         ).cuda()
-        self.stop_sequencer = StopSequencer(
-            self.hf_model,
-            model_type="causal",  # or seq2seq
-            tokenizer=self.tokenizer,
-        )
         self.stop_seq = []
         if self.tokenizer.chat_template:
             self.stop_seq.append(hacky_assistant_stop_seq(self.tokenizer))
@@ -43,26 +37,21 @@ class HfProvider(BaseProvider):
             return_tensors="pt",
             add_generation_prompt=True,
         ).cuda()
-
-        hf_model = self.hf_model
         input_length = prompt_tokens.size(-1)
-        if self.stop_seq:
-            hf_model = self.stop_sequencer.register_stop_texts(
-                stop_texts=self.stop_seq,
-                input_length=input_length,
-            )
 
         gen_args = {"do_sample": False}
         if temperature > 0:
             gen_args["do_sample"] = True
             gen_args["temperature"] = temperature
 
-        output_text = hf_model.generate(
+        output_text = self.hf_model.generate(
             input_ids=prompt_tokens,
             max_new_tokens=max_tokens,
             num_return_sequences=n,
             pad_token_id=self.tokenizer.eos_token_id,
             use_cache=True,
+            stop_strings=self.stop_seq,
+            tokenizer=self.tokenizer,
             **gen_args,
         )
 
