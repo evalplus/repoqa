@@ -1,0 +1,75 @@
+devfacet(QUESTIONER) asks: @xenova : First of all thank you so much for your amazing work with this open source library. It opens up many possibilities.
+
+One thing that caught my attention which is [FeatureExtractionPipeline](https://huggingface.co/docs/transformers.js/api/pipelines#module_pipelines.FeatureExtractionPipeline) can accept any amount of input regardless of the models' [sequence lengths](https://huggingface.co/spaces/mteb/leaderboard). Does it truncate or tokenize the data internally before applying it to the model? Is there documentation or an explanation about the implementation details?
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+xenova(OWNER) replies: Hi there 👋 Thanks so much for your kind words! 🤗
+
+Yes, it does perform truncation of the (tokenized) input prior to model execution (see the parent class' `_call` function):
+https://github.com/xenova/transformers.js/blob/768a2e26d7f34746caa2b102f55dbd270c5d6f36/src/pipelines.js#L126-L130
+
+The amount it truncates is determined by the tokenizer's `max_model_length` (which can be found in the tokenizer_config.json, e.g., [here](https://huggingface.co/Xenova/bert-base-cased/blob/main/tokenizer_config.json#L6))
+
+devfacet(QUESTIONER) replies: Is there a way to set `truncation` to `false` and return error if the given text is larger than `model_max_length`? Or do I need to implement that logic for myself before passing text to the `extractor` function?
+
+xenova(OWNER) replies: Sure! You can decompose the pipeline into it's separate parts: (1) Tokenization, followed by (2) Inference. Here's some example code:
+
+[Test in jsFiddle](https://jsfiddle.net/bksa5pgr/)
+
+```js
+import { env, AutoModel, AutoTokenizer } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.9.0';
+env.allowLocalModels=false; // disable local model check
+
+const model_id = 'Xenova/all-MiniLM-L6-v2';
+
+const tokenizer = await AutoTokenizer.from_pretrained(model_id);
+const model = await AutoModel.from_pretrained(model_id);
+
+// Example function that generates token embeddings for text,
+// but throws an error if the text is too long
+async function generateTokenEmbeddings(text){
+  // (1) Tokenization
+  const model_inputs = tokenizer(text);
+  const numberOfTokens = model_inputs.input_ids.dims.at(-1);
+
+  // Check that inputs are valid
+  if(numberOfTokens > tokenizer.model_max_length){
+    throw new Error(`Input is larger than max model length (${numberOfTokens} > ${tokenizer.model_max_length})`);
+  }
+
+  // Input is valid
+  console.log(`'${text.slice(0,20)}...' is valid (${numberOfTokens} tokens).`)
+
+  // (2) Run model
+  const output = await model(model_inputs);
+  console.log(output);
+}
+
+const text = "Hello world!"
+await generateTokenEmbeddings(text) // Works
+// {
+//  last_hidden_state: {
+//    data: [object Float32Array],
+//    dims: [1, 5, 384],
+//    size: 1920,
+//    type: "float32"
+//  }
+//}
+
+const text2 = "This won't work ".repeat(200)
+await generateTokenEmbeddings(text2) // this throws an error
+// Error: "Input is larger than max model length (1002 > 512)"
+
+```
+
+
+
+(see [tokenizers](https://huggingface.co/docs/transformers.js/api/tokenizers) and [models](https://huggingface.co/docs/transformers.js/api/models) docs for more information).
+
+devfacet(QUESTIONER) replies: Great! Thank you 🙏
+
+devfacet(QUESTIONER) replies: @xenova : Quick question: Some models have a typo (e.g., https://huggingface.co/Xenova/e5-small-v2/blob/a59d88d9e737bbaf6becc14ed014a9a7c82067e4/tokenizer_config.json#L7) which results in invalid `model_max_length` values. Should I track them myself, or is there another way to calculate `model_max_length` values?
+
+xenova(OWNER) replies: Oh yes good point. In that case, you can use `model.config.max_position_embeddings` (in fact, this is probably the better option). To be safe, you can take the minimum of the two and use that instead.

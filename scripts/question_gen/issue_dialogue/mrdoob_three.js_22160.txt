@@ -1,0 +1,16 @@
+h4k1m0u(QUESTIONER) asks: `ShapeUtils.area()` is basically returning a negative value in certain cases (I'm not sure what's the meaning of a negative area in geometry).
+I think  [this algorithm](https://www.mathopenref.com/coordpolygonarea.html) was used but an absolute value was forgotten.
+
+**Platform:**
+ - Device: Desktop
+ - OS: Windows
+ - Browser: Firefox
+ - Three.js version: r124 (function didn't seem to have changed in dev)
+
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+Mugen87(COLLABORATOR) replies: The result of `ShapeUtils.area()` is singed in order to determine the winding order of polygons.
+
+https://github.com/mrdoob/three.js/blob/35bdc42a8115c7404997b9ef9b9e7fdb832a5099/src/extras/ShapeUtils.js#L22-L26

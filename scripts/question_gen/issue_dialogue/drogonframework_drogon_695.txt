@@ -1,0 +1,12 @@
+gyb997(QUESTIONER) asks: Ok, I can parse the post request by set the
+Content-Type: application/x-www-form-urlencoded
+
+but how can I do it with multipart/form-data
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+gyb997(QUESTIONER) replies: sorry ,I got it ~
+just use the MultiPartParser class
+
+an-tao(MEMBER) replies: Yes, you are right.

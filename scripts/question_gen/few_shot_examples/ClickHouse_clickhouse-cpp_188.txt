@@ -1,0 +1,9 @@
+iosifnicolae2(QUESTIONER) asks: Hi.
+Is json type supported?
+
+Thank you!
+--------------------------------------------------
+The below is the discussion and comments on the question:
+--------------------------------------------------
+
+Enmk(COLLABORATOR) replies: Hi! Not supported RN, but any PRs are very welcome!
