@@ -11,16 +11,7 @@ from tree_sitter_languages import get_language, get_parser
 
 from repoqa.compute_score import compute_score, save_json
 from repoqa.data import CACHE_DIR, get_repoqa_data
-from repoqa.utility import COMMENT_QUERY, progress, topological_sort
-
-COMMENT_PREFIX = {
-    "python": "#",
-    "java": "//",
-    "typescript": "//",
-    "rust": "//",
-    "cpp": "//",
-    "go": "//",
-}
+from repoqa.utility import COMMENT_PREFIX, COMMENT_QUERY, progress, topological_sort
 
 # Model context below:
 TEMPLATE = "instruction\ncode_context\ndescription\ninstruction"

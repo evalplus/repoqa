@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: (c) 2024 EvalPlus Team
 #
 # SPDX-License-Identifier: Apache-2.0
+import json
+import os
+from pathlib import Path
 
 from rich.progress import (
     BarColumn,
@@ -15,14 +18,8 @@ FUNCTION_QUERY = {
     "java": "(method_declaration name: (_)) @fdef",
     "typescript": "(function_declaration name: (_)) @fdef",
     "rust": "(function_item name: (_)) @fdef",
-    "cpp": "((function_definition(function_declarator) @function.declaration)) @fdef",
-    "go": [
-        "(function_declaration name: (_)) @fdef",
-        """(method_declaration
-                receiver: (parameter_list (parameter (identifier) (type_identifier) @receiver))
-                name: (identifier) @method_name)
-            ) @method_declaration""",
-    ],
+    "cpp": "((function_definition(function_declarator) (_))) @fdef",
+    "go": "(function_declaration name: (_)) @fdef",
 }
 
 COMMENT_QUERY = {
@@ -63,10 +60,19 @@ FUNCTION_NAME_QUERY = {
 CLASS_TYPE_NODE = {
     "python": ["class_definition"],
     "java": ["class_declaration"],
-    "cpp": ["class_specifier" "struct_specifier"],
+    "cpp": ["class_specifier", "struct_specifier"],
     "go": [],  # For go, we need a different mechanism to check, sigh
     "rust": ["impl_item"],
     "typescript": ["class_declaration", "interface_declaration"],
+}
+
+COMMENT_PREFIX = {
+    "python": "#",
+    "java": "//",
+    "typescript": "//",
+    "rust": "//",
+    "cpp": "//",
+    "go": "//",
 }
 
 
@@ -103,3 +109,35 @@ def progress(note: str = "processing"):
         TextColumn("•"),
         TimeElapsedColumn(),
     )
+
+
+def get_model_name(output_path: str) -> str:
+    file_name = Path(output_path).stem
+    segments = file_name.split("_")
+    output_name = ""
+    for segment in segments:
+        if segment == "slash":
+            output_name += "/"
+        else:
+            output_name += segment
+    return output_name
+
+
+def save_json(output_json, result_path) -> None:
+    if os.path.isfile(result_path):
+        decision = ""
+        while decision.lower() not in ["y", "n"]:
+            print(f"{result_path} already exists. Press [Y/N] to overwrite or exit...")
+            decision = input()
+
+        if decision.lower() == "y":
+            # mv the file to a backup
+            new_path = result_path + ".bak"
+            while os.path.isfile(new_path):
+                new_path += ".bak"
+            os.rename(result_path, new_path)
+            print(f"Backup {result_path} to {new_path}")
+
+    if not os.path.isfile(result_path):
+        with open(result_path, "w") as f:
+            json.dump(output_json, f)

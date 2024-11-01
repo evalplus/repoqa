@@ -21,7 +21,13 @@ from tree_sitter_languages import get_language, get_parser
 
 from repoqa.data import get_repoqa_data
 from repoqa.metric import compute_function_similarity
-from repoqa.utility import COMMENT_QUERY, FUNCTION_QUERY, progress
+from repoqa.utility import (
+    COMMENT_QUERY,
+    FUNCTION_QUERY,
+    get_model_name,
+    progress,
+    save_json,
+)
 
 LANGUAGES = list(FUNCTION_QUERY.keys())
 THRESHOLDS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -349,38 +355,6 @@ def compute_score(
     output_json[model_name] = model_json
 
     return output_json
-
-
-def get_model_name(output_path: str) -> str:
-    file_name = Path(output_path).stem
-    segments = file_name.split("_")
-    output_name = ""
-    for segment in segments:
-        if segment == "slash":
-            output_name += "/"
-        else:
-            output_name += segment
-    return output_name
-
-
-def save_json(output_json, result_path) -> None:
-    if os.path.isfile(result_path):
-        decision = ""
-        while decision.lower() not in ["y", "n"]:
-            print(f"{result_path} already exists. Press [Y/N] to overwrite or exit...")
-            decision = input()
-
-        if decision.lower() == "y":
-            # mv the file to a backup
-            new_path = result_path + ".bak"
-            while os.path.isfile(new_path):
-                new_path += ".bak"
-            os.rename(result_path, new_path)
-            print(f"Backup {result_path} to {new_path}")
-
-    if not os.path.isfile(result_path):
-        with open(result_path, "w") as f:
-            json.dump(output_json, f)
 
 
 def compute_main(

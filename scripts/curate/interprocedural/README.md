@@ -1,7 +1,7 @@
 ## Interprocedural Analysis
 
 ### Problem Description
-Realizable Interprocedural Path Finding: Given a Function A and another function B (preferrably in a different file) find the shortest realizable path between function A and function B. That is, the shortest path in the call graph that can go from function to function B. We can also have negative cases where no such path exist and the LLM has to return so. We use the term realizable path here because we don't consider whether it is actually reachable in execution (since for these repos, the inputs are very complex), only use static analysis.
+Context & Flow Insensitive Interprocedural Path Finding: Given a Function A and another function B (preferrably in a different file) find the shortest path between function A and function B. That is, the shortest path in the call graph that can go from function to function B. We can also have negative cases where no such path exist and the LLM has to return so. We use the term context & flow insensitive path here because we don't consider whether it is actually reachable in execution (since for these repos, the inputs are very complex), only use static analysis.
 
 
 ### Construction Steps

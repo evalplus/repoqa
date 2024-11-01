@@ -24,6 +24,10 @@ def main(dataset_path: str):
         dataset = json.load(f)
 
     for lang, repos in dataset.items():
+        # TODO: remove
+        if lang != "python":
+            continue
+
         for repo in repos:
             if repo["repo"] not in repo2dep:
                 print(f"{lang} -- Repo {repo['repo']} not found in dep analysis data")

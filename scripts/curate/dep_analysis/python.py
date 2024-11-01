@@ -66,7 +66,6 @@ def main():
 
             assert output_dependency, "Empty output_dependency"
             repo["dependency"] = output_dependency
-        break
     with open(os.path.join(CURRENT_DIR, "data", "python.json"), "w") as f_out:
         json.dump({"python": repos}, f_out)
 

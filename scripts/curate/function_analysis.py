@@ -41,7 +41,6 @@ def comment_analysis(code: bytes, language: str) -> float:
 # for go and rust, we find the type
 def class_type_analysis(current_node: Node, lang: str) -> str:
     while current_node:
-        print(current_node.type)
         if current_node.type in CLASS_TYPE_NODE[lang]:
             class_name_node = current_node.child_by_field_name("name")
             if class_name_node:
@@ -58,6 +57,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
         lists = json.load(f)
 
     for lang, repos in lists.items():
+        # TODO: remove
         if lang != "python":
             continue
         assert (
@@ -94,6 +94,7 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                 extracted_functions = []
                 for capture in fn_query.captures(tree.root_node):
                     node, _ = capture
+                    # TODO: fix this for go
                     if lang == "go":
                         function_class_type = ""
                     else:
@@ -101,9 +102,15 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                     function_name = fn_name_parser(node)
                     function_content = code_bytes[node.start_byte : node.end_byte]
                     code_ratio = comment_analysis(function_content, lang)
+                    if function_class_type:
+                        full_name = (
+                            path + "::" + function_class_type + "." + function_name
+                        )
+                    else:
+                        full_name = path + "::" + function_name
                     extracted_functions.append(
                         {
-                            "name": fn_name_parser(node),
+                            "name": function_name,
                             "start_line": node.start_point[0],
                             "end_line": node.end_point[0] + 1,
                             "start_byte": node.start_byte,
@@ -115,9 +122,10 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
                             "code_ratio": code_ratio,
                             "file": path,
                             "class_type": function_class_type,
+                            "full_name": full_name,
                         }
                     )
-                    function_counts[function_name] = (
+                    function_counts[full_name] = (
                         function_counts.get(function_name, 0) + 1
                     )
                 functions[path] = extracted_functions
@@ -126,10 +134,11 @@ def main(dataset_path: str, overwrite_analysis: bool = False):
 
             # Update whether function name is unique
             unique_count = 0
-            for function in functions:
-                function["is_unique"] = function_counts[function["name"]] == 1
-                if function_counts[function["name"]] == 1:
-                    unique_count += 1
+            for _, file_functions in functions.items():
+                for function in file_functions:
+                    function["is_unique"] = function_counts[function["full_name"]] == 1
+                    if function_counts[function["full_name"]] == 1:
+                        unique_count += 1
 
             repo["functions"] = functions
             print(
@@ -146,5 +155,3 @@ if __name__ == "__main__":
     from fire import Fire
 
     Fire(main)
-
-# TODO: write test case for class name/type identifier here

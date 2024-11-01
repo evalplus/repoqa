@@ -31,6 +31,7 @@ def main(
         lists = json.load(f)
 
     for lang, repos in lists.items():
+        # TODO: remove
         if lang != "python":
             continue
         lang_suffix = lang2suffix[lang]
